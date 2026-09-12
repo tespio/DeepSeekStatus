@@ -1,5 +1,8 @@
 # 🐳 DeepSeek Status — Windows port
 
+[![Download](https://img.shields.io/github/v/release/tespio/DeepSeekStatus?label=download&color=4D6BFE)](https://github.com/tespio/DeepSeekStatus/releases/latest)
+[![License](https://img.shields.io/github/license/tespio/DeepSeekStatus?color=green)](LICENSE)
+
 A native Windows port of [owenzhao/DeepSeekStatus](https://github.com/owenzhao/DeepSeekStatus):
 a tiny system-tray app that tells you — at a glance — whether DeepSeek is in peak or off-peak
 pricing.
@@ -63,7 +66,17 @@ Details (identical to the macOS app):
 
 - Windows 10 1809 or later / Windows 11.
 - To build: [.NET 10 SDK](https://dotnet.microsoft.com/download) (Windows Desktop workload).
-- To run a published build: .NET 10 Desktop Runtime.
+- The prebuilt release is self-contained — no .NET runtime needed.
+
+## Installation
+
+1. Grab `DeepSeekStatus-<version>-win-x64.zip` from the
+   [latest release](https://github.com/tespio/DeepSeekStatus/releases/latest).
+2. Unzip it anywhere and run `DeepSeekStatus.exe`. There is no installer and no taskbar button —
+   look for the whale in the notification area (it may start in the overflow `^` menu; drag it
+   onto the taskbar to pin it).
+3. The binary is unsigned, so SmartScreen may prompt on first run: **More info → Run anyway**.
+   A `.sha256` file is attached to each release if you want to verify the download.
 
 ## Build & run
 
