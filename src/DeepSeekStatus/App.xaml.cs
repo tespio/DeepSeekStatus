@@ -16,6 +16,7 @@ public partial class App : Application
     private Mutex? _mutex;
     private EventWaitHandle? _showEvent;
     private Thread? _listener;
+    private string? _exportPanelDirectory;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -34,6 +35,12 @@ public partial class App : Application
             Environment.ExitCode = IconExporter.Export(e.Args[exportIndex + 1]);
             Shutdown();
             return;
+        }
+
+        var exportPanelIndex = Array.IndexOf(e.Args, "--export-panel");
+        if (exportPanelIndex >= 0 && exportPanelIndex + 1 < e.Args.Length)
+        {
+            _exportPanelDirectory = e.Args[exportPanelIndex + 1];
         }
 
         Theme.Init();
@@ -80,6 +87,24 @@ public partial class App : Application
         };
 
         _store.Start();
+
+        if (_exportPanelDirectory is not null)
+        {
+            _panel.ShowPanel();
+            var timer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(900),
+            };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                var name = $"panel-{_store.Period.Key()}";
+                Environment.ExitCode = PanelExporter.Export(_panel.RootBorder, _exportPanelDirectory, name);
+                Shutdown();
+            };
+            timer.Start();
+            return;
+        }
 
         if (Environment.GetEnvironmentVariable("DEEPSEEK_STATUS_SHOW_PANEL") == "1")
         {

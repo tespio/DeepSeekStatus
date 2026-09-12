@@ -11,6 +11,14 @@ The whale lives in the notification area:
 
 **Left-click** the whale for the full panel. **Right-click** for the quick menu.
 
+## Screenshot
+
+Off-peak hours — the whale sleeps, and every time is shown in the machine's local time
+(here the Beijing schedule has been converted to GMT+3, so the peak blocks land at
+04:00–07:00 and 09:00–13:00):
+
+![DeepSeek Status panel during off-peak hours, shown in local time](Preview/panel-offPeak.png)
+
 ## Features
 
 | Action | What happens |
@@ -89,6 +97,7 @@ Development helpers (same idea as the macOS `DEEPSEEK_STATUS_*` variables):
 - `DEEPSEEK_STATUS_SHOW_PANEL=1` — open the panel right after startup (used for testing).
 - `DEEPSEEK_STATUS_LANG=zh|en` — override the UI language.
 - `DeepSeekStatus.exe --export-icons <dir>` — render `app.ico` and tray-icon PNGs.
+- `DeepSeekStatus.exe --export-panel <dir>` — render the panel itself to a 2× PNG (used for `Preview/`).
 - `DeepSeekStatus.exe --selftest` — run the built-in checks.
 
 ## Differences from the macOS original
