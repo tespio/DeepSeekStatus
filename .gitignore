@@ -1,0 +1,9 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+Build/
+
+# local reference checkout of the upstream macOS project
+DeepSeekStatus-macos/

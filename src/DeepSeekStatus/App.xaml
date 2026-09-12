@@ -1,0 +1,18 @@
+<Application x:Class="DeepSeekStatus.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             ShutdownMode="OnExplicitShutdown">
+    <Application.Resources>
+        <SolidColorBrush x:Key="PanelBackground" Color="#FAFAFC" />
+        <SolidColorBrush x:Key="PanelBorder" Color="#D8D8DE" />
+        <SolidColorBrush x:Key="TextPrimary" Color="#1D1D1F" />
+        <SolidColorBrush x:Key="TextSecondary" Color="#6E6E73" />
+        <SolidColorBrush x:Key="TextTertiary" Color="#8E8E93" />
+        <SolidColorBrush x:Key="Separator" Color="#22000000" />
+        <SolidColorBrush x:Key="ControlTrack" Color="#28000000" />
+        <SolidColorBrush x:Key="SegmentSelected" Color="#FFFFFF" />
+        <SolidColorBrush x:Key="SegmentHover" Color="#18000000" />
+        <SolidColorBrush x:Key="LinkBrush" Color="#4D6BFE" />
+        <SolidColorBrush x:Key="AccentSwitch" Color="#4D6BFE" />
+    </Application.Resources>
+</Application>
