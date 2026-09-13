@@ -166,6 +166,11 @@ never in a plain-text preferences file — and **Remove** in the panel's key edi
 only other system state the app writes is the optional `Run` registry value for launch-at-login and
 the small `HKCU\Software\DeepSeekStatus` preference key.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for the version history (1.0.1 → 1.2.0 balance →
+1.3.0 tray balance → 1.3.1 panel anchor fix).
+
 ## License
 
 [MIT](LICENSE) © 2026 Zhao Xin — Windows port by the DeepSeek Status contributors.
