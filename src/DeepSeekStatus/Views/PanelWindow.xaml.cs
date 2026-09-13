@@ -18,6 +18,7 @@ public partial class PanelWindow : Window
     private readonly Action _quit;
     private bool _syncing;
     private bool _syncingBalanceKey;
+    private bool _repositioning;
     private DateTime _hiddenAt = DateTime.MinValue;
     private int _lastHour = -1;
 
@@ -71,6 +72,25 @@ public partial class PanelWindow : Window
     }
 
     public bool RecentlyHidden => (DateTime.UtcNow - _hiddenAt).TotalMilliseconds < 350;
+
+    protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+    {
+        base.OnRenderSizeChanged(sizeInfo);
+        if (!IsVisible || _repositioning)
+        {
+            return;
+        }
+
+        _repositioning = true;
+        try
+        {
+            PositionNearTray();
+        }
+        finally
+        {
+            _repositioning = false;
+        }
+    }
 
     protected override void OnSourceInitialized(EventArgs e)
     {
@@ -454,7 +474,10 @@ public partial class PanelWindow : Window
         var area = screen.WorkingArea;
         var dpi = VisualTreeHelper.GetDpi(this);
         Scroller.MaxHeight = Math.Max(240, area.Height / dpi.DpiScaleY - 24);
-        UpdateLayout();
+        if (!IsMeasureValid || !IsArrangeValid)
+        {
+            UpdateLayout();
+        }
 
         var width = ActualWidth * dpi.DpiScaleX;
         var height = ActualHeight * dpi.DpiScaleY;
