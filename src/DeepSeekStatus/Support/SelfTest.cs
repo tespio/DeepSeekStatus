@@ -91,6 +91,8 @@ public static class SelfTest
         Check("balance total", info is null ? "" : info.Amount(info.TotalBalance), "¥110.00");
         Check("balance granted", info is null ? "" : info.Amount(info.GrantedBalance), "¥10.00");
         Check("balance invalid json", DeepSeekBalance.FromJson("{oops") is null, true);
+        Check("balance amount text", BalanceStore.FormatAmounts(parsed), "¥110.00");
+        Check("balance amount text empty", BalanceStore.FormatAmounts(null) is null, true);
         Check("balance unauthorized replaces key", new BalanceException(BalanceErrorKind.Unauthorized).SuggestsReplacingKey, true);
         Check("balance http keeps key", new BalanceException(BalanceErrorKind.Http, status: 500).SuggestsReplacingKey, false);
 

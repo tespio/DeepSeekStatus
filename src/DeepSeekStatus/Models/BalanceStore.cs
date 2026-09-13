@@ -118,8 +118,47 @@ public sealed class BalanceStore : INotifyPropertyChanged
         private set => Set(ref _lastRefreshed, value);
     }
 
+    public string? AmountText => FormatAmounts(Balance);
+
+    public static string? FormatAmounts(DeepSeekBalance? balance)
+    {
+        if (balance is null)
+        {
+            return null;
+        }
+
+        var parts = balance.BalanceInfos
+            .Where(info => !string.IsNullOrWhiteSpace(info.TotalBalance))
+            .Select(info => info.Amount(info.TotalBalance))
+            .ToArray();
+        return parts.Length > 0 ? string.Join(" · ", parts) : null;
+    }
+
     public void Start()
     {
+        var demo = Environment.GetEnvironmentVariable("DEEPSEEK_STATUS_FAKE_BALANCE");
+        if (!string.IsNullOrWhiteSpace(demo))
+        {
+            Balance = new DeepSeekBalance
+            {
+                IsAvailable = true,
+                BalanceInfos =
+                {
+                    new DeepSeekBalance.BalanceInfo
+                    {
+                        Currency = "CNY",
+                        TotalBalance = demo.Trim(),
+                        GrantedBalance = "0.00",
+                        ToppedUpBalance = demo.Trim(),
+                    },
+                },
+            };
+            HasKey = true;
+            State = BalanceState.Loaded;
+            LastRefreshed = DateTimeOffset.UtcNow;
+            return;
+        }
+
         ReloadKey();
         _timer.Start();
     }

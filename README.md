@@ -29,9 +29,9 @@ Off-peak hours — the whale sleeps, and every time is shown in the machine's lo
 | **Left-click** the tray whale | Open / close the details panel |
 | **Right-click** the tray whale | Quick menu: preview peak, preview off-peak, follow live time, show countdown, launch at login, project page, quit |
 | **Preview** picker in the panel | Force the app to *display* peak or off-peak; it never changes the real pricing |
-| **Show countdown near the tray** | Adds a small `HH:MM:SS` pill next to the notification area (off by default). It is always-on-top and can be dragged; click it to open the panel |
+| **Show countdown near the tray** | Adds a small `HH:MM:SS` pill next to the notification area (off by default). When a balance is loaded it is shown after the countdown (`HH:MM:SS · ¥42.00`). It is always-on-top and can be dragged; click it to open the panel |
 | **Launch at login** | Registers the app under `HKCU\...\CurrentVersion\Run` (off by default) |
-| **Account balance** | Appears in the panel once an API key is saved. **Refresh** queries it immediately; the time of the last successful refresh sits next to the button |
+| **Account balance** | Appears in the panel once an API key is saved, and next to the countdown in the tray pill and tooltip. **Refresh** queries it immediately; the time of the last successful refresh sits next to the button |
 | **Enter / Change API Key** | Opens the key field in the panel. The key is stored in **Windows Credential Manager**; **Remove** deletes it |
 | **Quit** | Quits the app |
 
@@ -59,6 +59,8 @@ account, paste an API key into the panel:
   `Authorization` header of that request.
 - The balance is **account-wide** — every key of an account returns the same numbers — and the
   query does not consume tokens or cost anything.
+- Once loaded, the total also appears next to the countdown in the tray pill and in the tray
+  tooltip, so you can check it without opening the panel.
 - A failed refresh always offers **Retry** and **Change API Key**, with an expired key highlighted
   first.
 
@@ -124,6 +126,7 @@ Development helpers (same idea as the macOS `DEEPSEEK_STATUS_*` variables):
 
 - `DEEPSEEK_STATUS_PREVIEW=peak|offPeak` — force the rendered period at startup.
 - `DEEPSEEK_STATUS_COUNTDOWN=1` — force the countdown pill on at startup.
+- `DEEPSEEK_STATUS_FAKE_BALANCE=42.00` — show a fake loaded balance (no key, no network) for screenshots.
 - `DEEPSEEK_STATUS_SHOW_PANEL=1` — open the panel right after startup (used for testing).
 - `DEEPSEEK_STATUS_LANG=zh|en` — override the UI language.
 - `DeepSeekStatus.exe --export-icons <dir>` — render `app.ico` and tray-icon PNGs.

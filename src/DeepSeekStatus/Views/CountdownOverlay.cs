@@ -13,16 +13,19 @@ namespace DeepSeekStatus.Views;
 public sealed class CountdownOverlay : Window
 {
     private readonly PricingStore _store;
+    private readonly BalanceStore _balance;
     private readonly Action _togglePanel;
     private readonly TextBlock _text;
+    private readonly TextBlock _balanceText;
     private readonly Ellipse _dot;
     private bool _userMoved;
     private bool _dragging;
     private Point _dragStart;
 
-    public CountdownOverlay(PricingStore store, Action togglePanel)
+    public CountdownOverlay(PricingStore store, BalanceStore balance, Action togglePanel)
     {
         _store = store;
+        _balance = balance;
         _togglePanel = togglePanel;
 
         WindowStyle = WindowStyle.None;
@@ -52,6 +55,17 @@ public sealed class CountdownOverlay : Window
             Margin = new Thickness(8, 0, 0, 0),
             Typography = { NumeralAlignment = FontNumeralAlignment.Tabular },
         };
+        _balanceText = new TextBlock
+        {
+            FontFamily = new FontFamily("Consolas, Segoe UI"),
+            FontSize = 14,
+            FontWeight = FontWeights.Medium,
+            Foreground = new SolidColorBrush(Color.FromArgb(0xCC, 0xFF, 0xFF, 0xFF)),
+            VerticalAlignment = VerticalAlignment.Center,
+            Margin = new Thickness(10, 0, 0, 0),
+            Visibility = Visibility.Collapsed,
+            Typography = { NumeralAlignment = FontNumeralAlignment.Tabular },
+        };
 
         var panel = new StackPanel
         {
@@ -60,6 +74,7 @@ public sealed class CountdownOverlay : Window
         };
         panel.Children.Add(_dot);
         panel.Children.Add(_text);
+        panel.Children.Add(_balanceText);
 
         Content = new Border
         {
@@ -90,6 +105,14 @@ public sealed class CountdownOverlay : Window
 
         _text.Text = PricingFormatter.CompactCountdown(_store.Snapshot.SecondsUntilTransition);
         _dot.Fill = new SolidColorBrush(WhaleTheme.Accent(_store.Period));
+
+        var balanceText = _balance.AmountText;
+        if (_balanceText.Text != balanceText)
+        {
+            _balanceText.Text = balanceText ?? string.Empty;
+            _balanceText.Visibility = balanceText is null ? Visibility.Collapsed : Visibility.Visible;
+        }
+
         if (!IsVisible)
         {
             Show();

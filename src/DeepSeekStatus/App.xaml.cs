@@ -74,8 +74,8 @@ public partial class App : Application
         _balance = new BalanceStore();
         ApplyLaunchOverrides();
         _panel = new PanelWindow(_store, _balance, Quit);
-        _overlay = new CountdownOverlay(_store, TogglePanel);
-        _tray = new TrayIcon(_store, TogglePanel, Quit);
+        _overlay = new CountdownOverlay(_store, _balance, TogglePanel);
+        _tray = new TrayIcon(_store, _balance, TogglePanel, Quit);
         _store.Tick += OnTick;
         Theme.Changed += OnThemeChanged;
         SystemEvents.DisplaySettingsChanged += (_, _) =>
