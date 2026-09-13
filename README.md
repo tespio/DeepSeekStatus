@@ -5,7 +5,7 @@
 
 A native Windows port of [owenzhao/DeepSeekStatus](https://github.com/owenzhao/DeepSeekStatus):
 a tiny system-tray app that tells you — at a glance — whether DeepSeek is in peak or off-peak
-pricing.
+pricing, and (once you save an API key) how much balance is left on your account.
 
 The whale lives in the notification area:
 
@@ -31,12 +31,14 @@ Off-peak hours — the whale sleeps, and every time is shown in the machine's lo
 | **Preview** picker in the panel | Force the app to *display* peak or off-peak; it never changes the real pricing |
 | **Show countdown near the tray** | Adds a small `HH:MM:SS` pill next to the notification area (off by default). It is always-on-top and can be dragged; click it to open the panel |
 | **Launch at login** | Registers the app under `HKCU\...\CurrentVersion\Run` (off by default) |
+| **Account balance** | Appears in the panel once an API key is saved. **Refresh** queries it immediately; the time of the last successful refresh sits next to the button |
+| **Enter / Change API Key** | Opens the key field in the panel. The key is stored in **Windows Credential Manager**; **Remove** deletes it |
 | **Quit** | Quits the app |
 
 The panel contains the current period and price multiplier (`×1.0` / `×0.5`), the current-rate
-bar, a live countdown to the next switch with block progress, and a 7×24 weekly schedule heat map
-(blue = peak, gray = off-peak, with the current hour outlined), all rendered with the same
-DeepSeek whale vector as the macOS original.
+bar, a live countdown to the next switch with block progress, the account balance (once a key is
+saved), and a 7×24 weekly schedule heat map (blue = peak, gray = off-peak, with the current hour
+outlined), all rendered with the same DeepSeek whale vector as the macOS original.
 
 All times are converted to **your PC's local time zone** automatically: the aquarium clock, the
 "switches to … at …" line, and the weekly heat map all show local hours. The underlying billing
@@ -44,6 +46,21 @@ rule stays anchored to Beijing time (UTC+8), which is what DeepSeek actually cha
 
 The UI is English by default and switches to Simplified Chinese when Windows is set to Chinese
 (`DEEPSEEK_STATUS_LANG=zh` or `DEEPSEEK_STATUS_LANG=en` can override it).
+
+## Account balance (opt-in)
+
+The pricing panel works with no key at all. If you want to see what is left on your DeepSeek
+account, paste an API key into the panel:
+
+- The key is stored in **Windows Credential Manager** (`DeepSeekStatus/deepseek-api-key`), not in a
+  plain-text file, and can be removed from the panel at any time.
+- With a key saved, the app calls `GET https://api.deepseek.com/user/balance` on startup, every
+  5 minutes, and when the panel opens with stale data. The key is only ever sent in the
+  `Authorization` header of that request.
+- The balance is **account-wide** — every key of an account returns the same numbers — and the
+  query does not consume tokens or cost anything.
+- A failed refresh always offers **Retry** and **Change API Key**, with an expired key highlighted
+  first.
 
 ## Pricing rule
 
@@ -125,16 +142,26 @@ Development helpers (same idea as the macOS `DEEPSEEK_STATUS_*` variables):
 - Times in the panel are shown in your local time zone instead of Beijing time (the macOS
   original always displayed Beijing time). The billing logic itself is unchanged.
 - Everything else — the pricing math, half-open Beijing-time ranges, countdown, progress bars,
-  weekly heat map, preview banner, whale vector, palette and the "no network" behavior — is a
+  weekly heat map, preview banner, whale vector, palette and the opt-in balance feature — is a
   direct port of the Swift sources in `DeepSeekStatus/` (see the `DeepSeekStatus-macos`
   reference checkout).
 
 ## Privacy
 
-The app never touches the network. There is no analytics, no update check, no API key and no
-account. It reads the local clock, draws a whale, and that's it. The only system state it writes
-is the optional `Run` registry value for launch-at-login and the small `HKCU\Software\DeepSeekStatus`
-preference key.
+The pricing panel needs no account, no key and no network — it reads your system clock and draws a
+whale. The app only touches the network when you opt in by saving an API key:
+
+- **Balance (opt-in)** — with a key saved, the app calls
+  `GET https://api.deepseek.com/user/balance` on startup, every 5 minutes, and when the panel opens
+  with stale data. Your key is sent only in the `Authorization` header of that one request.
+  **With no key saved, no request is ever made.**
+- There is no analytics, no telemetry and no auto-update check.
+
+The API key lives in **Windows Credential Manager** as a generic credential
+(`DeepSeekStatus/deepseek-api-key`), encrypted by Windows and readable only by your user account —
+never in a plain-text preferences file — and **Remove** in the panel's key editor deletes it. The
+only other system state the app writes is the optional `Run` registry value for launch-at-login and
+the small `HKCU\Software\DeepSeekStatus` preference key.
 
 ## License
 

@@ -14,5 +14,6 @@
         <SolidColorBrush x:Key="SegmentHover" Color="#18000000" />
         <SolidColorBrush x:Key="LinkBrush" Color="#4D6BFE" />
         <SolidColorBrush x:Key="AccentSwitch" Color="#4D6BFE" />
+        <SolidColorBrush x:Key="BalanceBackground" Color="#0D000000" />
     </Application.Resources>
 </Application>

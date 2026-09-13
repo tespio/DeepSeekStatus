@@ -82,6 +82,25 @@ public static class SelfTest
         Check("local heat Mon 09:00 UTC+8", PricingFormatter.IsPeakAtLocal(mondayLocal, 9, beijing), true);
         Check("local heat Mon 12:00 UTC+8", PricingFormatter.IsPeakAtLocal(mondayLocal, 12, beijing), false);
 
+        var balanceJson = """{"is_available":true,"balance_infos":[{"currency":"CNY","total_balance":"110.00","granted_balance":"10.00","topped_up_balance":"100.00"}]}""";
+        var parsed = DeepSeekBalance.FromJson(balanceJson);
+        Check("balance parsed", parsed is not null, true);
+        Check("balance available", parsed?.IsAvailable ?? false, true);
+        Check("balance currencies", parsed?.BalanceInfos.Count ?? 0, 1);
+        var info = parsed?.BalanceInfos.FirstOrDefault();
+        Check("balance total", info is null ? "" : info.Amount(info.TotalBalance), "¥110.00");
+        Check("balance granted", info is null ? "" : info.Amount(info.GrantedBalance), "¥10.00");
+        Check("balance invalid json", DeepSeekBalance.FromJson("{oops") is null, true);
+        Check("balance unauthorized replaces key", new BalanceException(BalanceErrorKind.Unauthorized).SuggestsReplacingKey, true);
+        Check("balance http keeps key", new BalanceException(BalanceErrorKind.Http, status: 500).SuggestsReplacingKey, false);
+
+        const string testTarget = "DeepSeekStatus/selftest-key";
+        CredentialManager.Delete(testTarget);
+        CredentialManager.Save("sk-selftest-123", testTarget);
+        Check("credential round-trip", CredentialManager.Load(testTarget), "sk-selftest-123");
+        CredentialManager.Delete(testTarget);
+        Check("credential deleted", CredentialManager.Load(testTarget) is null, true);
+
         Console.WriteLine(new string('-', 48));
         Console.WriteLine($"figures={WhaleGeometry.FigureCount} segments={WhaleGeometry.SegmentCount}");
         Console.WriteLine($"bounds={WhaleGeometry.Bounds} aspect={WhaleGeometry.AspectRatio:0.000}");

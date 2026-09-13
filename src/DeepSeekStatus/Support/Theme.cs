@@ -76,6 +76,7 @@ public static class Theme
         resources["SegmentHover"] = Brush(SegmentHover);
         resources["LinkBrush"] = Brush(LinkBrush);
         resources["AccentSwitch"] = Brush(WhaleTheme.BrandBlue);
+        resources["BalanceBackground"] = Brush(BalanceBackground);
     }
 
     public static Color PanelBackground => _dark
@@ -115,6 +116,10 @@ public static class Theme
         : Color.FromArgb(0x18, 0x00, 0x00, 0x00);
 
     public static Color LinkBrush => WhaleTheme.BrandBlue;
+
+    public static Color BalanceBackground => _dark
+        ? Color.FromArgb(0x0D, 0xFF, 0xFF, 0xFF)
+        : Color.FromArgb(0x0D, 0x00, 0x00, 0x00);
 
     public static SolidColorBrush Brush(Color color)
     {

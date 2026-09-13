@@ -12,7 +12,7 @@
     <RootNamespace>DeepSeekStatus</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon Condition="Exists('Assets\app.ico')">Assets\app.ico</ApplicationIcon>
-    <Version>1.0.1</Version>
+    <Version>1.2.0</Version>
     <Company>DeepSeek Status contributors</Company>
     <Product>DeepSeek Status</Product>
     <AssemblyTitle>DeepSeek Status</AssemblyTitle>

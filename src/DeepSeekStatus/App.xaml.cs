@@ -10,6 +10,7 @@ namespace DeepSeekStatus;
 public partial class App : Application
 {
     private PricingStore _store = null!;
+    private BalanceStore _balance = null!;
     private TrayIcon _tray = null!;
     private PanelWindow _panel = null!;
     private CountdownOverlay _overlay = null!;
@@ -70,8 +71,9 @@ public partial class App : Application
         _listener.Start();
 
         _store = new PricingStore();
+        _balance = new BalanceStore();
         ApplyLaunchOverrides();
-        _panel = new PanelWindow(_store, Quit);
+        _panel = new PanelWindow(_store, _balance, Quit);
         _overlay = new CountdownOverlay(_store, TogglePanel);
         _tray = new TrayIcon(_store, TogglePanel, Quit);
         _store.Tick += OnTick;
@@ -87,6 +89,7 @@ public partial class App : Application
         };
 
         _store.Start();
+        _balance.Start();
 
         if (_exportPanelDirectory is not null)
         {
@@ -143,6 +146,7 @@ public partial class App : Application
             return;
         }
 
+        _balance.RefreshIfNeeded();
         _panel.ShowPanel();
     }
 
@@ -150,6 +154,7 @@ public partial class App : Application
     {
         if (!_panel.IsVisible)
         {
+            _balance.RefreshIfNeeded();
             _panel.ShowPanel();
         }
     }
