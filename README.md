@@ -78,8 +78,11 @@ Details (identical to the macOS app):
   (clock, countdown detail, weekly heat map) is converted to your local time zone, DST included.
   For example, 09:00 Beijing is 04:00 in Athens (UTC+3) and 21:00 the previous day in New York
   (UTC-4), and the heat map shifts accordingly.
-- Only the weekday and the time of day are used. Chinese public holidays are **not** part of the
-  rule.
+- **Weekends and Chinese public holidays are off-peak all day** (per DeepSeek's pricing notice) —
+  including weekends that are adjusted into working days (调休) and holiday weekdays such as
+  National Day or Spring Festival. The holiday calendar is embedded (from the State Council's
+  annual notices, currently 2025–2026) so no network is needed; when a new year is published,
+  refresh it with `.\Tools\update-holidays.ps1` and rebuild.
 
 ## Requirements
 
@@ -132,6 +135,8 @@ Development helpers (same idea as the macOS `DEEPSEEK_STATUS_*` variables):
 - `DeepSeekStatus.exe --export-icons <dir>` — render `app.ico` and tray-icon PNGs.
 - `DeepSeekStatus.exe --export-panel <dir>` — render the panel itself to a 2× PNG (used for `Preview/`).
 - `DeepSeekStatus.exe --selftest` — run the built-in checks.
+- `.\Tools\update-holidays.ps1` — download the latest Chinese public holiday calendar from
+  [holiday-cn](https://github.com/NateScarlet/holiday-cn) and rewrite `Assets/china-holidays.json`.
 
 ## Differences from the macOS original
 
@@ -144,6 +149,8 @@ Development helpers (same idea as the macOS `DEEPSEEK_STATUS_*` variables):
 - Launch-at-login uses the per-user `Run` registry key rather than `SMAppService`.
 - Times in the panel are shown in your local time zone instead of Beijing time (the macOS
   original always displayed Beijing time). The billing logic itself is unchanged.
+- **Chinese public holidays are treated as off-peak**, following DeepSeek's updated pricing
+  notice — the macOS original (as of 1.2) does not handle holidays yet.
 - Everything else — the pricing math, half-open Beijing-time ranges, countdown, progress bars,
   weekly heat map, preview banner, whale vector, palette and the opt-in balance feature — is a
   direct port of the Swift sources in `DeepSeekStatus/` (see the `DeepSeekStatus-macos`

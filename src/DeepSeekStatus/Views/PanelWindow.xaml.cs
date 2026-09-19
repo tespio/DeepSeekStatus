@@ -139,6 +139,8 @@ public partial class PanelWindow : Window
         Multiplier.Text = "×" + period.PriceMultiplier().ToString("0.0", CultureInfo.InvariantCulture);
         Multiplier.Foreground = Theme.Brush(accent);
         PeriodSummary.Text = period.Summary();
+        HolidayNotice.Text = Strings.Get("popover.holiday.notice");
+        HolidayNotice.Visibility = snapshot.IsHoliday ? Visibility.Visible : Visibility.Collapsed;
 
         RateText.Text = period.PriceText();
         RateText.Foreground = Theme.Brush(accent);

@@ -4,6 +4,21 @@ All notable changes to the Windows port of DeepSeek Status. Version numbers trac
 the upstream macOS project (the balance feature matches upstream 1.2) plus patch
 releases for port-specific fixes.
 
+## [1.4.0] — 2026-09-13
+
+### Added
+
+- **Chinese public holidays are now off-peak**, matching DeepSeek's updated pricing notice
+  ("weekends with adjusted working days and Chinese public holidays are all billed at off-peak
+  rates"). Weekdays that are public holidays no longer show as peak, and countdown/progress
+  calculations span holiday blocks correctly.
+- Embedded holiday calendar (State Council notices, 2025–2026) from
+  [holiday-cn](https://github.com/NateScarlet/holiday-cn) — still no network required.
+- The panel shows a "Chinese public holiday — off-peak all day" line when today is a holiday.
+- `Tools/update-holidays.ps1` refreshes the embedded calendar when a new year is published.
+- Self-tests cover National Day, Spring Festival, Mid-Autumn, adjusted work weekends, the
+  post-holiday transition and the unknown-year fallback.
+
 ## [1.3.1] — 2026-09-13
 
 ### Fixed
@@ -62,6 +77,7 @@ releases for port-specific fixes.
   - Self-contained local publishing (`build.ps1 -Publish`, no CI required).
   - Built-in self-test (`--selftest`).
 
+[1.4.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.4.0
 [1.3.1]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.3.1
 [1.3.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.3.0
 [1.2.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.2.0

@@ -96,6 +96,25 @@ public static class SelfTest
         Check("balance unauthorized replaces key", new BalanceException(BalanceErrorKind.Unauthorized).SuggestsReplacingKey, true);
         Check("balance http keeps key", new BalanceException(BalanceErrorKind.Http, status: 500).SuggestsReplacingKey, false);
 
+        DateTimeOffset D(int year, int month, int day, int hour, int minute = 0) =>
+            new(year, month, day, hour, minute, 0, DeepSeekPricing.BeijingOffset);
+
+        Check("holiday data covers 2026", ChineseHolidays.CoversYear(2026), true);
+        Check("holiday data lacks 2027", ChineseHolidays.CoversYear(2027), false);
+        Check("national day Thu 10:00", DeepSeekPricing.PeriodAt(D(2026, 10, 1, 10)), PricePeriod.OffPeak);
+        Check("day after holiday Thu 10:00", DeepSeekPricing.PeriodAt(D(2026, 10, 8, 10)), PricePeriod.Peak);
+        Check("adjusted workday Sat 10:00", DeepSeekPricing.PeriodAt(D(2026, 10, 10, 10)), PricePeriod.OffPeak);
+        Check("mid-autumn Fri 10:00", DeepSeekPricing.PeriodAt(D(2026, 9, 25, 10)), PricePeriod.OffPeak);
+        Check("day before mid-autumn Thu 10:00", DeepSeekPricing.PeriodAt(D(2026, 9, 24, 10)), PricePeriod.Peak);
+        Check("spring festival Tue 10:00", DeepSeekPricing.PeriodAt(D(2026, 2, 17, 10)), PricePeriod.OffPeak);
+        Check("2025 national day Wed 10:00", DeepSeekPricing.PeriodAt(D(2025, 10, 1, 10)), PricePeriod.OffPeak);
+        Check("unknown year falls back", DeepSeekPricing.PeriodAt(D(2030, 1, 1, 10)), PricePeriod.Peak);
+        Check("next after holiday starts", DeepSeekPricing.NextTransition(D(2026, 10, 1, 8)), D(2026, 10, 8, 9));
+        Check("next after spring festival", DeepSeekPricing.NextTransition(D(2026, 2, 13, 19)), D(2026, 2, 24, 9));
+        Check("interval start across holiday", DeepSeekPricing.CurrentIntervalStart(D(2026, 10, 5, 10)), D(2026, 9, 30, 18));
+        Check("snapshot holiday flag", new PricingSnapshot(D(2026, 10, 1, 10)).IsHoliday, true);
+        Check("snapshot non-holiday flag", new PricingSnapshot(D(2026, 10, 8, 10)).IsHoliday, false);
+
         const string testTarget = "DeepSeekStatus/selftest-key";
         CredentialManager.Delete(testTarget);
         CredentialManager.Save("sk-selftest-123", testTarget);

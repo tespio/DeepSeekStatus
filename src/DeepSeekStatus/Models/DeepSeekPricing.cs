@@ -11,7 +11,9 @@ public static class DeepSeekPricing
     public static PricePeriod PeriodAt(DateTimeOffset instant)
     {
         var beijing = instant.ToOffset(BeijingOffset);
-        if (beijing.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+        var day = DateOnly.FromDateTime(beijing.DateTime);
+        if (beijing.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday
+            || Support.ChineseHolidays.IsHoliday(day))
         {
             return PricePeriod.OffPeak;
         }
@@ -46,7 +48,7 @@ public static class DeepSeekPricing
     {
         var current = PeriodAt(now);
         var day = DateOnly.FromDateTime(now.ToOffset(BeijingOffset).DateTime);
-        for (var i = 0; i < 8; i++)
+        for (var i = 0; i < 32; i++)
         {
             foreach (var candidate in BoundariesOnDay(day.AddDays(i)).Order())
             {
@@ -64,14 +66,21 @@ public static class DeepSeekPricing
     {
         var day = DateOnly.FromDateTime(now.ToOffset(BeijingOffset).DateTime);
         DateTimeOffset? best = null;
-        for (var i = -9; i <= 9; i++)
+        for (var i = -14; i <= 9; i++)
         {
             foreach (var boundary in BoundariesOnDay(day.AddDays(i)))
             {
-                if (boundary <= now && (best is null || boundary > best.Value))
+                if (boundary > now || (best is not null && boundary <= best.Value))
                 {
-                    best = boundary;
+                    continue;
                 }
+
+                if (PeriodAt(boundary.AddSeconds(-1)) == PeriodAt(boundary))
+                {
+                    continue;
+                }
+
+                best = boundary;
             }
         }
 
@@ -106,11 +115,15 @@ public sealed class PricingSnapshot : IEquatable<PricingSnapshot>
     public PricingSnapshot(DateTimeOffset now)
     {
         Now = now;
+        var beijingDay = DateOnly.FromDateTime(now.ToOffset(DeepSeekPricing.BeijingOffset).DateTime);
+        IsHoliday = Support.ChineseHolidays.IsHoliday(beijingDay);
         Period = DeepSeekPricing.PeriodAt(now);
         IntervalStart = DeepSeekPricing.CurrentIntervalStart(now);
         NextTransition = DeepSeekPricing.NextTransition(now);
         NextPeriod = DeepSeekPricing.PeriodAt(NextTransition.AddSeconds(1));
     }
+
+    public bool IsHoliday { get; }
 
     public bool Equals(PricingSnapshot? other) =>
         other is not null
@@ -118,9 +131,10 @@ public sealed class PricingSnapshot : IEquatable<PricingSnapshot>
         && Period == other.Period
         && IntervalStart == other.IntervalStart
         && NextTransition == other.NextTransition
-        && NextPeriod == other.NextPeriod;
+        && NextPeriod == other.NextPeriod
+        && IsHoliday == other.IsHoliday;
 
     public override bool Equals(object? obj) => Equals(obj as PricingSnapshot);
 
-    public override int GetHashCode() => HashCode.Combine(Now, Period, IntervalStart, NextTransition, NextPeriod);
+    public override int GetHashCode() => HashCode.Combine(Now, Period, IntervalStart, NextTransition, NextPeriod, IsHoliday);
 }
