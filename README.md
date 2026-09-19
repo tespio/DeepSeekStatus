@@ -176,7 +176,7 @@ the small `HKCU\Software\DeepSeekStatus` preference key.
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for the version history (1.0.1 → 1.2.0 balance →
-1.3.0 tray balance → 1.3.1 panel anchor fix).
+1.3.0 tray balance → 1.3.1 panel anchor fix → 1.4.0 holiday billing).
 
 ## License
 
