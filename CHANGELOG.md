@@ -4,6 +4,20 @@ All notable changes to the Windows port of DeepSeek Status. Version numbers trac
 the upstream macOS project (the balance feature matches upstream 1.2) plus patch
 releases for port-specific fixes.
 
+## [1.5.0] — 2026-09-19
+
+### Added
+
+- **Model pricing section** in the panel, sourced from the official
+  [Models & Pricing](https://api-docs.deepseek.com/quick_start/pricing) page: per-1M-token rates
+  for `deepseek-flash` and `deepseek-v4-pro` (cache hit / cache miss / output, plus the
+  concurrency limit), switchable with a segmented picker like the Preview control.
+- The column for the **current period** (peak or off-peak) is highlighted with the period accent
+  colour, so the table doubles as a live price indicator.
+- The section can be collapsed; the collapsed state and the selected model are remembered.
+- `DEEPSEEK_STATUS_NO_BALANCE=1` dev override to render the empty balance state (used for the
+  README screenshot so real balances are never published).
+
 ## [1.4.0] — 2026-09-13
 
 ### Added
@@ -77,6 +91,7 @@ releases for port-specific fixes.
   - Self-contained local publishing (`build.ps1 -Publish`, no CI required).
   - Built-in self-test (`--selftest`).
 
+[1.5.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.5.0
 [1.4.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.4.0
 [1.3.1]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.3.1
 [1.3.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.3.0

@@ -36,6 +36,16 @@ public static class Strings
 
         ["popover.holiday.notice"] = ("Chinese public holiday — off-peak all day.", "今天是法定节假日，全天按空闲价计费。"),
 
+        ["pricing.title"] = ("Model pricing", "模型价格"),
+        ["pricing.unit"] = ("per 1M tokens · USD", "每百万 tokens · 美元"),
+        ["pricing.inputCacheHit"] = ("Input · cache hit", "输入 · 缓存命中"),
+        ["pricing.inputCacheMiss"] = ("Input · cache miss", "输入 · 缓存未命中"),
+        ["pricing.output"] = ("Output", "输出"),
+        ["pricing.concurrency"] = ("Concurrency limit", "并发上限"),
+        ["pricing.peak"] = ("Peak ×1.0", "高峰 ×1.0"),
+        ["pricing.offPeak"] = ("Off-peak ×0.5", "空闲 ×0.5"),
+        ["pricing.footnote"] = ("From api-docs.deepseek.com · updated {0}.", "数据来自 api-docs.deepseek.com · 更新于 {0}。"),
+
         ["balance.title"] = ("Account balance", "账户余额"),
         ["balance.refresh"] = ("Refresh", "刷新"),
         ["balance.retry"] = ("Retry", "重试"),

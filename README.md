@@ -33,6 +33,7 @@ Off-peak hours — the whale sleeps, and every time is shown in the machine's lo
 | **Launch at login** | Registers the app under `HKCU\...\CurrentVersion\Run` (off by default) |
 | **Account balance** | Appears in the panel once an API key is saved, and next to the countdown in the tray pill and tooltip. **Refresh** queries it immediately; the time of the last successful refresh sits next to the button |
 | **Enter / Change API Key** | Opens the key field in the panel. The key is stored in **Windows Credential Manager**; **Remove** deletes it |
+| **Model pricing** | Collapsible section with the official per-1M-token rates for `deepseek-flash` and `deepseek-v4-pro` (from api-docs.deepseek.com). The current period's column is highlighted; the selected model and collapsed state are remembered |
 | **Quit** | Quits the app |
 
 The panel contains the current period and price multiplier (`×1.0` / `×0.5`), the current-rate
@@ -130,6 +131,7 @@ Development helpers (same idea as the macOS `DEEPSEEK_STATUS_*` variables):
 - `DEEPSEEK_STATUS_PREVIEW=peak|offPeak` — force the rendered period at startup.
 - `DEEPSEEK_STATUS_COUNTDOWN=1` — force the countdown pill on at startup.
 - `DEEPSEEK_STATUS_FAKE_BALANCE=42.00` — show a fake loaded balance (no key, no network) for screenshots.
+- `DEEPSEEK_STATUS_NO_BALANCE=1` — ignore any saved key and show the balance card empty (screenshots).
 - `DEEPSEEK_STATUS_SHOW_PANEL=1` — open the panel right after startup (used for testing).
 - `DEEPSEEK_STATUS_LANG=zh|en` — override the UI language.
 - `DeepSeekStatus.exe --export-icons <dir>` — render `app.ico` and tray-icon PNGs.

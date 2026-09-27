@@ -169,4 +169,29 @@ public static class UserSettings
         {
         }
     }
+
+    public static int GetInt(string name, int fallback = 0)
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(KeyPath);
+            return key?.GetValue(name) is int value ? value : fallback;
+        }
+        catch
+        {
+            return fallback;
+        }
+    }
+
+    public static void SetInt(string name, int value)
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.CreateSubKey(KeyPath, true);
+            key?.SetValue(name, value, RegistryValueKind.DWord);
+        }
+        catch
+        {
+        }
+    }
 }

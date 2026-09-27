@@ -115,6 +115,13 @@ public static class SelfTest
         Check("snapshot holiday flag", new PricingSnapshot(D(2026, 10, 1, 10)).IsHoliday, true);
         Check("snapshot non-holiday flag", new PricingSnapshot(D(2026, 10, 8, 10)).IsHoliday, false);
 
+        var catalog = PricingCatalog.Load();
+        Check("pricing model count", catalog.Models.Count, 2);
+        Check("pricing flash id", catalog.Models.FirstOrDefault()?.Id ?? "", "flash");
+        Check("pricing flash cache miss off-peak", catalog.Models.FirstOrDefault()?.InputCacheMiss.OffPeak ?? "", "0.15");
+        Check("pricing pro output peak", catalog.Models.Skip(1).FirstOrDefault()?.Output.Peak ?? "", "3.96");
+        Check("pricing updated", catalog.Updated.Length > 0, true);
+
         const string testTarget = "DeepSeekStatus/selftest-key";
         CredentialManager.Delete(testTarget);
         CredentialManager.Save("sk-selftest-123", testTarget);

@@ -136,6 +136,11 @@ public sealed class BalanceStore : INotifyPropertyChanged
 
     public void Start()
     {
+        if (Environment.GetEnvironmentVariable("DEEPSEEK_STATUS_NO_BALANCE") == "1")
+        {
+            return;
+        }
+
         var demo = Environment.GetEnvironmentVariable("DEEPSEEK_STATUS_FAKE_BALANCE");
         if (!string.IsNullOrWhiteSpace(demo))
         {

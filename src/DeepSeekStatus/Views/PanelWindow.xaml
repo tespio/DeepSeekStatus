@@ -314,6 +314,96 @@
                     <TextBlock x:Name="Footnote" Margin="0,7,0,0" FontSize="12.7"
                                Foreground="{DynamicResource TextTertiary}" TextWrapping="Wrap" />
 
+                    <Grid Margin="0,14,0,0">
+                        <TextBlock x:Name="PricingTitleLabel" FontSize="14.7" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                        <Button x:Name="PricingToggleButton" Style="{StaticResource LinkButton}"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                FontFamily="Segoe MDL2 Assets" FontSize="12" />
+                    </Grid>
+                    <StackPanel x:Name="PricingBody" Margin="0,9,0,0">
+                        <Grid>
+                            <TextBlock x:Name="PricingUnitLabel" FontSize="12.7"
+                                       Foreground="{DynamicResource TextTertiary}" VerticalAlignment="Center" />
+                            <Border HorizontalAlignment="Right" CornerRadius="8"
+                                    Background="{DynamicResource ControlTrack}" Padding="2">
+                                <UniformGrid Columns="2" Width="248">
+                                    <RadioButton x:Name="PricingFlashSegment" Style="{StaticResource SegmentRadio}"
+                                                 GroupName="PricingModel" FontSize="14" />
+                                    <RadioButton x:Name="PricingProSegment" Style="{StaticResource SegmentRadio}"
+                                                 GroupName="PricingModel" FontSize="14" />
+                                </UniformGrid>
+                            </Border>
+                        </Grid>
+                        <Border Margin="0,9,0,0" CornerRadius="11"
+                                Background="{DynamicResource BalanceBackground}" Padding="13,11">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" MinWidth="88" />
+                                    <ColumnDefinition Width="Auto" MinWidth="88" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <TextBlock x:Name="PricingPeakHeader" Grid.Column="1" HorizontalAlignment="Right"
+                                           FontSize="13.3" FontWeight="SemiBold" Margin="0,0,0,6" />
+                                <TextBlock x:Name="PricingOffPeakHeader" Grid.Column="2" HorizontalAlignment="Right"
+                                           FontSize="13.3" FontWeight="SemiBold" Margin="0,0,0,6" />
+
+                                <TextBlock x:Name="PricingCacheHitLabel" Grid.Row="1" FontSize="14"
+                                           Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <TextBlock x:Name="PricingCacheHitPeak" Grid.Row="1" Grid.Column="1"
+                                           HorizontalAlignment="Right" FontSize="14.7" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,0,4"
+                                           Typography.NumeralAlignment="Tabular" />
+                                <TextBlock x:Name="PricingCacheHitOffPeak" Grid.Row="1" Grid.Column="2"
+                                           HorizontalAlignment="Right" FontSize="14.7" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,0,4"
+                                           Typography.NumeralAlignment="Tabular" />
+
+                                <TextBlock x:Name="PricingCacheMissLabel" Grid.Row="2" FontSize="14"
+                                           Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <TextBlock x:Name="PricingCacheMissPeak" Grid.Row="2" Grid.Column="1"
+                                           HorizontalAlignment="Right" FontSize="14.7" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,0,4"
+                                           Typography.NumeralAlignment="Tabular" />
+                                <TextBlock x:Name="PricingCacheMissOffPeak" Grid.Row="2" Grid.Column="2"
+                                           HorizontalAlignment="Right" FontSize="14.7" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,0,4"
+                                           Typography.NumeralAlignment="Tabular" />
+
+                                <TextBlock x:Name="PricingOutputLabel" Grid.Row="3" FontSize="14"
+                                           Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center"
+                                           Margin="0,0,0,4" />
+                                <TextBlock x:Name="PricingOutputPeak" Grid.Row="3" Grid.Column="1"
+                                           HorizontalAlignment="Right" FontSize="14.7" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,0,4"
+                                           Typography.NumeralAlignment="Tabular" />
+                                <TextBlock x:Name="PricingOutputOffPeak" Grid.Row="3" Grid.Column="2"
+                                           HorizontalAlignment="Right" FontSize="14.7" FontWeight="SemiBold"
+                                           VerticalAlignment="Center" Margin="0,0,0,4"
+                                           Typography.NumeralAlignment="Tabular" />
+
+                                <TextBlock x:Name="PricingConcurrencyLabel" Grid.Row="4" FontSize="13.3"
+                                           Foreground="{DynamicResource TextTertiary}" VerticalAlignment="Center" />
+                                <TextBlock x:Name="PricingConcurrencyValue" Grid.Row="4" Grid.Column="1"
+                                           Grid.ColumnSpan="2" HorizontalAlignment="Right" FontSize="13.3"
+                                           Foreground="{DynamicResource TextTertiary}" VerticalAlignment="Center"
+                                           Typography.NumeralAlignment="Tabular" />
+                            </Grid>
+                        </Border>
+                        <TextBlock x:Name="PricingFootnote" Margin="0,7,0,0" FontSize="12.7"
+                                   Foreground="{DynamicResource TextTertiary}" TextWrapping="Wrap" />
+                    </StackPanel>
+
                     <Rectangle Height="1" Fill="{DynamicResource Separator}" Margin="0,14,0,0" />
 
                     <Grid Margin="0,14,0,0">

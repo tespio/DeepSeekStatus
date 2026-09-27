@@ -15,10 +15,14 @@ public partial class PanelWindow : Window
 {
     private readonly PricingStore _store;
     private readonly BalanceStore _balance;
+    private readonly PricingCatalog _catalog = PricingCatalog.Load();
     private readonly Action _quit;
     private bool _syncing;
     private bool _syncingBalanceKey;
+    private bool _syncingPricing;
     private bool _repositioning;
+    private int _pricingModelIndex;
+    private bool _pricingCollapsed;
     private DateTime _hiddenAt = DateTime.MinValue;
     private int _lastHour = -1;
 
@@ -28,7 +32,11 @@ public partial class PanelWindow : Window
         _balance = balance;
         _quit = quit;
         InitializeComponent();
+        _pricingModelIndex = Math.Clamp(UserSettings.GetInt("PricingModelIndex"),
+                                        0, Math.Max(0, _catalog.Models.Count - 1));
+        _pricingCollapsed = UserSettings.GetBool("PricingCollapsed");
         ApplyStaticTexts();
+        ApplyPricingCollapsed();
         WireEvents();
 
         _store.PropertyChanged += (_, _) =>
@@ -178,6 +186,12 @@ public partial class PanelWindow : Window
 
         LaunchMessage.Text = _store.LaunchAtLoginMessage ?? string.Empty;
         LaunchMessage.Visibility = _store.LaunchAtLoginMessage is null ? Visibility.Collapsed : Visibility.Visible;
+
+        _syncingPricing = true;
+        PricingFlashSegment.IsChecked = _pricingModelIndex == 0;
+        PricingProSegment.IsChecked = _pricingModelIndex == 1;
+        _syncingPricing = false;
+        RenderPricing();
 
         if (snapshot.Now.Hour != _lastHour)
         {
@@ -364,6 +378,79 @@ public partial class PanelWindow : Window
         BalanceChangeButton.FontFamily = new FontFamily("Segoe MDL2 Assets");
         BalanceChangeButton.ToolTip = Strings.Get("balance.key.changeHelp");
         BalanceEnterKeyButton.Content = BuildEnterKeyContent();
+
+        PricingTitleLabel.Text = Strings.Get("pricing.title");
+        PricingUnitLabel.Text = Strings.Get("pricing.unit");
+        PricingPeakHeader.Text = Strings.Get("pricing.peak");
+        PricingOffPeakHeader.Text = Strings.Get("pricing.offPeak");
+        PricingCacheHitLabel.Text = Strings.Get("pricing.inputCacheHit");
+        PricingCacheMissLabel.Text = Strings.Get("pricing.inputCacheMiss");
+        PricingOutputLabel.Text = Strings.Get("pricing.output");
+        PricingConcurrencyLabel.Text = Strings.Get("pricing.concurrency");
+        PricingFootnote.Text = string.Format(Strings.Get("pricing.footnote"), _catalog.Updated);
+
+        if (_catalog.Models.Count > 0)
+        {
+            PricingFlashSegment.Content = _catalog.Models[0].Name;
+        }
+
+        if (_catalog.Models.Count > 1)
+        {
+            PricingProSegment.Content = _catalog.Models[1].Name;
+        }
+        else
+        {
+            PricingProSegment.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void ApplyPricingCollapsed()
+    {
+        PricingBody.Visibility = _pricingCollapsed ? Visibility.Collapsed : Visibility.Visible;
+        PricingToggleButton.Content = _pricingCollapsed ? "\uE76C" : "\uE70D";
+    }
+
+    private void SetPricingModel(int index)
+    {
+        if (_syncingPricing || index == _pricingModelIndex)
+        {
+            return;
+        }
+
+        _pricingModelIndex = index;
+        UserSettings.SetInt("PricingModelIndex", index);
+        RenderPricing();
+    }
+
+    private void RenderPricing()
+    {
+        if (_catalog.Models.Count == 0)
+        {
+            return;
+        }
+
+        var model = _catalog.Models[Math.Clamp(_pricingModelIndex, 0, _catalog.Models.Count - 1)];
+        PricingCacheHitPeak.Text = "$" + model.InputCacheHit.Peak;
+        PricingCacheHitOffPeak.Text = "$" + model.InputCacheHit.OffPeak;
+        PricingCacheMissPeak.Text = "$" + model.InputCacheMiss.Peak;
+        PricingCacheMissOffPeak.Text = "$" + model.InputCacheMiss.OffPeak;
+        PricingOutputPeak.Text = "$" + model.Output.Peak;
+        PricingOutputOffPeak.Text = "$" + model.Output.OffPeak;
+        PricingConcurrencyValue.Text = model.Concurrency;
+
+        var isPeak = _store.Period == PricePeriod.Peak;
+        var accent = Theme.Brush(WhaleTheme.Accent(_store.Period));
+        var dim = Theme.Brush(Theme.TextTertiary);
+        var strong = Theme.Brush(Theme.TextPrimary);
+
+        PricingPeakHeader.Foreground = isPeak ? accent : dim;
+        PricingOffPeakHeader.Foreground = isPeak ? dim : accent;
+        PricingCacheHitPeak.Foreground = isPeak ? strong : dim;
+        PricingCacheHitOffPeak.Foreground = isPeak ? dim : strong;
+        PricingCacheMissPeak.Foreground = isPeak ? strong : dim;
+        PricingCacheMissOffPeak.Foreground = isPeak ? dim : strong;
+        PricingOutputPeak.Foreground = isPeak ? strong : dim;
+        PricingOutputOffPeak.Foreground = isPeak ? dim : strong;
     }
 
     private static StackPanel BuildEnterKeyContent()
@@ -424,6 +511,15 @@ public partial class PanelWindow : Window
                 _balance.SaveKey();
                 e.Handled = true;
             }
+        };
+
+        PricingFlashSegment.Checked += (_, _) => SetPricingModel(0);
+        PricingProSegment.Checked += (_, _) => SetPricingModel(1);
+        PricingToggleButton.Click += (_, _) =>
+        {
+            _pricingCollapsed = !_pricingCollapsed;
+            UserSettings.SetBool("PricingCollapsed", _pricingCollapsed);
+            ApplyPricingCollapsed();
         };
     }
 
