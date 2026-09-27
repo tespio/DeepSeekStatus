@@ -18,6 +18,7 @@ public partial class App : Application
     private EventWaitHandle? _showEvent;
     private Thread? _listener;
     private string? _exportPanelDirectory;
+    private string? _exportPanelName;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -42,6 +43,10 @@ public partial class App : Application
         if (exportPanelIndex >= 0 && exportPanelIndex + 1 < e.Args.Length)
         {
             _exportPanelDirectory = e.Args[exportPanelIndex + 1];
+            if (exportPanelIndex + 2 < e.Args.Length && !e.Args[exportPanelIndex + 2].StartsWith("--"))
+            {
+                _exportPanelName = e.Args[exportPanelIndex + 2];
+            }
         }
 
         Theme.Init();
@@ -94,15 +99,27 @@ public partial class App : Application
         if (_exportPanelDirectory is not null)
         {
             _panel.ShowPanel();
+            var started = DateTime.UtcNow;
             var timer = new System.Windows.Threading.DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(900),
+                Interval = TimeSpan.FromMilliseconds(200),
             };
             timer.Tick += (_, _) =>
             {
+                var elapsed = DateTime.UtcNow - started;
+                if (elapsed < TimeSpan.FromMilliseconds(900))
+                {
+                    return;
+                }
+
+                if (_balance.State == BalanceStore.BalanceState.Loading && elapsed < TimeSpan.FromSeconds(8))
+                {
+                    return;
+                }
+
                 timer.Stop();
-                var name = $"panel-{_store.Period.Key()}";
-                Environment.ExitCode = PanelExporter.Export(_panel.RootBorder, _exportPanelDirectory, name);
+                var name = _exportPanelName ?? $"panel-{_store.Period.Key()}";
+                Environment.ExitCode = PanelExporter.Export(_panel.RootBorder, _exportPanelDirectory!, name);
                 Shutdown();
             };
             timer.Start();
