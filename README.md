@@ -14,16 +14,12 @@ The whale lives in the notification area:
 
 **Left-click** the whale for the full panel. **Right-click** for the quick menu.
 
-## Screenshots
+## Screenshot
 
-Off-peak hours — the whale sleeps, and every time is shown in the machine's local time
-(here the Beijing schedule has been converted to GMT+3, so the peak blocks land at
-04:00–07:00 and 09:00–13:00):
-
-![DeepSeek Status panel during off-peak hours, shown in local time](Preview/panel-offPeak.png)
-
-With an API key saved, the panel also shows the account balance (opt-in) and the model pricing
-table, with the current period's column highlighted:
+Off-peak hours with an API key saved — the whale sleeps, every time is shown in the machine's
+local time (here the Beijing schedule has been converted to GMT+3, so the peak blocks land at
+04:00–07:00 and 09:00–13:00), and the panel shows the account balance plus the model pricing table
+with the current period's column highlighted:
 
 ![DeepSeek Status panel with account balance and model pricing](Preview/panel-balance.png)
 
