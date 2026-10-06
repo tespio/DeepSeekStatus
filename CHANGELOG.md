@@ -4,6 +4,17 @@ All notable changes to the Windows port of DeepSeek Status. Version numbers trac
 the upstream macOS project (the balance feature matches upstream 1.2) plus patch
 releases for port-specific fixes.
 
+## [1.8.0] — 2026-10-06
+
+### Added
+
+- **Theme picker** in the panel options: System / Light / Dark, remembered in the registry. The
+  whole panel (cards, calendar, controls) re-themes live; the tray whale still follows the taskbar
+  background so it keeps its contrast.
+- **Themed scrollbar**: the panel's scrollbar is now a thin rounded thumb that matches the app
+  theme instead of the default system scrollbar.
+- Self-tests for theme resolution.
+
 ## [1.7.0] — 2026-10-06
 
 ### Added
@@ -125,6 +136,7 @@ releases for port-specific fixes.
   - Self-contained local publishing (`build.ps1 -Publish`, no CI required).
   - Built-in self-test (`--selftest`).
 
+[1.8.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.8.0
 [1.7.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.7.0
 [1.6.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.6.0
 [1.5.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.5.0

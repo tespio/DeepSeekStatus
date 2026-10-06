@@ -78,6 +78,11 @@ public static class Strings
         ["usage.estimateHelp"] = ("The API has no usage endpoint — token counts are estimated from spend at the selected model's off-peak cache-miss input price.", "接口未提供用量查询，tokens 由消费金额按所选模型空闲时段输入价估算。"),
         ["tray.today"] = ("today {0}", "今日 {0}"),
 
+        ["popover.option.theme"] = ("Theme", "外观"),
+        ["theme.system"] = ("System", "跟随系统"),
+        ["theme.light"] = ("Light", "浅色"),
+        ["theme.dark"] = ("Dark", "深色"),
+
         ["balance.title"] = ("Account balance", "账户余额"),
         ["balance.refresh"] = ("Refresh", "刷新"),
         ["balance.retry"] = ("Retry", "重试"),

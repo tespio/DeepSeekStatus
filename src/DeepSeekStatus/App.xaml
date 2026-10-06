@@ -15,5 +15,7 @@
         <SolidColorBrush x:Key="LinkBrush" Color="#4D6BFE" />
         <SolidColorBrush x:Key="AccentSwitch" Color="#4D6BFE" />
         <SolidColorBrush x:Key="BalanceBackground" Color="#0D000000" />
+        <SolidColorBrush x:Key="ScrollThumb" Color="#42000000" />
+        <SolidColorBrush x:Key="ScrollThumbHover" Color="#6B000000" />
     </Application.Resources>
 </Application>

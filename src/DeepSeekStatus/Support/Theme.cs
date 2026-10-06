@@ -1,20 +1,31 @@
 using System.Windows;
 using System.Windows.Media;
+using DeepSeekStatus.Models;
 using Microsoft.Win32;
 
 namespace DeepSeekStatus.Support;
+
+public enum AppTheme
+{
+    System = 0,
+    Light = 1,
+    Dark = 2,
+}
 
 public static class Theme
 {
     private static bool _initialized;
     private static bool _dark;
     private static bool _taskbarDark;
+    private static AppTheme _mode = AppTheme.System;
 
     public static event Action? Changed;
 
     public static bool IsDark => _dark;
 
     public static bool IsTaskbarDark => _taskbarDark;
+
+    public static AppTheme Mode => _mode;
 
     public static void Init()
     {
@@ -24,7 +35,8 @@ public static class Theme
         }
 
         _initialized = true;
-        _dark = ReadAppLightTheme() is not true;
+        _mode = (AppTheme)Math.Clamp(UserSettings.GetInt("ThemeMode", (int)AppTheme.System), 0, 2);
+        _dark = ResolveDark();
         _taskbarDark = ReadTaskbarLightTheme() is not true;
         Apply();
 
@@ -32,12 +44,30 @@ public static class Theme
         SystemEvents.DisplaySettingsChanged += (_, _) => Refresh();
     }
 
+    public static void SetMode(AppTheme mode)
+    {
+        if (_mode == mode)
+        {
+            return;
+        }
+
+        _mode = mode;
+        UserSettings.SetInt("ThemeMode", (int)mode);
+        var dark = ResolveDark();
+        if (dark == _dark)
+        {
+            return;
+        }
+
+        _dark = dark;
+        Apply();
+        Changed?.Invoke();
+    }
+
     public static void Refresh()
     {
-        var appLight = ReadAppLightTheme();
-        var taskbarLight = ReadTaskbarLightTheme();
-        var dark = appLight is not true;
-        var taskbarDark = taskbarLight is not true;
+        var taskbarDark = ReadTaskbarLightTheme() is not true;
+        var dark = ResolveDark();
         if (dark == _dark && taskbarDark == _taskbarDark)
         {
             return;
@@ -56,6 +86,15 @@ public static class Theme
             dispatcher.BeginInvoke(() => Changed?.Invoke());
         }
     }
+
+    public static bool ResolveDark(AppTheme mode, bool systemLight) => mode switch
+    {
+        AppTheme.Light => false,
+        AppTheme.Dark => true,
+        _ => !systemLight,
+    };
+
+    private static bool ResolveDark() => ResolveDark(_mode, ReadAppLightTheme() is true);
 
     private static void Apply()
     {
@@ -77,6 +116,8 @@ public static class Theme
         resources["LinkBrush"] = Brush(LinkBrush);
         resources["AccentSwitch"] = Brush(WhaleTheme.BrandBlue);
         resources["BalanceBackground"] = Brush(BalanceBackground);
+        resources["ScrollThumb"] = Brush(ScrollThumb);
+        resources["ScrollThumbHover"] = Brush(ScrollThumbHover);
     }
 
     public static Color PanelBackground => _dark
@@ -120,6 +161,14 @@ public static class Theme
     public static Color BalanceBackground => _dark
         ? Color.FromArgb(0x0D, 0xFF, 0xFF, 0xFF)
         : Color.FromArgb(0x0D, 0x00, 0x00, 0x00);
+
+    public static Color ScrollThumb => _dark
+        ? Color.FromArgb(0x4D, 0xFF, 0xFF, 0xFF)
+        : Color.FromArgb(0x42, 0x00, 0x00, 0x00);
+
+    public static Color ScrollThumbHover => _dark
+        ? Color.FromArgb(0x80, 0xFF, 0xFF, 0xFF)
+        : Color.FromArgb(0x6B, 0x00, 0x00, 0x00);
 
     public static SolidColorBrush Brush(Color color)
     {

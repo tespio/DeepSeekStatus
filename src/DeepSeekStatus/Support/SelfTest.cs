@@ -126,6 +126,11 @@ public static class SelfTest
         Check("pricing pro output peak", catalog.Models.Skip(1).FirstOrDefault()?.Output.Peak ?? "", "3.96");
         Check("pricing updated", catalog.Updated.Length > 0, true);
 
+        Check("theme system light", Theme.ResolveDark(AppTheme.System, systemLight: true), false);
+        Check("theme system dark", Theme.ResolveDark(AppTheme.System, systemLight: false), true);
+        Check("theme forced light", Theme.ResolveDark(AppTheme.Light, systemLight: false), false);
+        Check("theme forced dark", Theme.ResolveDark(AppTheme.Dark, systemLight: true), true);
+
         var localNow = new DateTimeOffset(DateTime.Today.AddHours(15));
         var usageSamples = new List<UsageSample>
         {

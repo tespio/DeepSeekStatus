@@ -22,6 +22,10 @@ and the selected day is explained ("National Day holiday · Off-peak all day"):
 
 ![DeepSeek Status panel with account balance, usage and the monthly pricing calendar](Preview/panel-calendar.png)
 
+The same panel in Light mode (Theme picker → Light):
+
+![DeepSeek Status panel in light mode](Preview/panel-light.png)
+
 ## Features
 
 | Action | What happens |
@@ -35,6 +39,7 @@ and the selected day is explained ("National Day holiday · Off-peak all day"):
 | **Account balance** | Appears in the panel once an API key is saved, and next to the countdown in the tray pill and tooltip. **Refresh** queries it immediately; the time of the last successful refresh sits next to the button |
 | **Enter / Change API Key** | Opens the key field in the panel. The key is stored in **Windows Credential Manager**; **Remove** deletes it |
 | **Model pricing** | Collapsible section with the official per-1M-token rates for `deepseek-flash` and `deepseek-v4-pro` (from api-docs.deepseek.com). The current period's column is highlighted; the selected model and collapsed state are remembered |
+| **Theme** | System / Light / Dark picker for the panel (remembered). The tray whale still follows the taskbar background so it always stays visible |
 | **Usage** | Collapsible section with locally tracked spend (last 30 days, daily chart, today / 7 days) and a labelled token estimate; today's spend also appears in the tray tooltip. History builds up while the app runs |
 | **Quit** | Quits the app |
 
@@ -211,7 +216,7 @@ the small `HKCU\Software\DeepSeekStatus` preference key.
 
 See [CHANGELOG.md](CHANGELOG.md) for the version history (1.0.1 → 1.2.0 balance →
 1.3.0 tray balance → 1.3.1 panel anchor fix → 1.4.0 holiday billing → 1.5.0 model pricing →
-1.6.0 usage tracking → 1.7.0 pricing calendar).
+1.6.0 usage tracking → 1.7.0 pricing calendar → 1.8.0 theme picker).
 
 ## License
 

@@ -27,6 +27,7 @@ public partial class PanelWindow : Window
     private bool _usageCollapsed;
     private bool _scheduleShowsCalendar = true;
     private bool _syncingSchedule;
+    private bool _syncingTheme;
     private DateOnly _selectedDate = DateOnly.FromDateTime(DateTime.Now);
     private DateOnly _lastCalendarDay = DateOnly.MinValue;
     private DateTime _hiddenAt = DateTime.MinValue;
@@ -232,6 +233,12 @@ public partial class PanelWindow : Window
         _syncingPricing = false;
         RenderPricing();
 
+        _syncingTheme = true;
+        ThemeSystemSegment.IsChecked = Theme.Mode == AppTheme.System;
+        ThemeLightSegment.IsChecked = Theme.Mode == AppTheme.Light;
+        ThemeDarkSegment.IsChecked = Theme.Mode == AppTheme.Dark;
+        _syncingTheme = false;
+
         if (snapshot.Now.Hour != _lastHour)
         {
             _lastHour = snapshot.Now.Hour;
@@ -404,6 +411,10 @@ public partial class PanelWindow : Window
         SegmentAuto.Content = Strings.Get("popover.preview.auto");
         SegmentPeak.Content = PricePeriod.Peak.ShortTitle();
         SegmentOffPeak.Content = PricePeriod.OffPeak.ShortTitle();
+        ThemeOptionLabel.Text = Strings.Get("popover.option.theme");
+        ThemeSystemSegment.Content = Strings.Get("theme.system");
+        ThemeLightSegment.Content = Strings.Get("theme.light");
+        ThemeDarkSegment.Content = Strings.Get("theme.dark");
         PreviewResume.Content = Strings.Get("popover.preview.resume");
         QuitButton.Content = Strings.Get("popover.quit");
         VersionText.Text = AppInfo.DisplayName;
@@ -637,6 +648,18 @@ public partial class PanelWindow : Window
             _selectedDate = date;
             WeekGrid.ReferenceDate = date;
         };
+
+        ThemeSystemSegment.Checked += (_, _) => SetThemeMode(AppTheme.System);
+        ThemeLightSegment.Checked += (_, _) => SetThemeMode(AppTheme.Light);
+        ThemeDarkSegment.Checked += (_, _) => SetThemeMode(AppTheme.Dark);
+    }
+
+    private void SetThemeMode(AppTheme mode)
+    {
+        if (!_syncingTheme)
+        {
+            Theme.SetMode(mode);
+        }
     }
 
     private void SetScheduleMode(bool calendar)
