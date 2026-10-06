@@ -122,6 +122,35 @@ public static class SelfTest
         Check("pricing pro output peak", catalog.Models.Skip(1).FirstOrDefault()?.Output.Peak ?? "", "3.96");
         Check("pricing updated", catalog.Updated.Length > 0, true);
 
+        var localNow = new DateTimeOffset(DateTime.Today.AddHours(15));
+        var usageSamples = new List<UsageSample>
+        {
+            new(localNow.AddDays(-1).AddHours(-5), "USD", 100m, 0m, 100m),
+            new(localNow.AddDays(-1).AddHours(-3), "USD", 99m, 0m, 99m),
+            new(localNow.AddHours(-4), "USD", 98m, 0m, 98m),
+            new(localNow.AddHours(-2), "USD", 103m, 0m, 103m),
+            new(localNow.AddHours(-1), "USD", 102.5m, 0m, 102.5m),
+        };
+        var usage = UsageCalculator.Compute(usageSamples, localNow);
+        Check("usage today", usage.SpendToday, 1.5m);
+        Check("usage 7 days", usage.Spend7Days, 2.5m);
+        Check("usage 30 days", usage.Spend30Days, 2.5m);
+        Check("usage max daily", usage.MaxDaily, 1.5m);
+        Check("usage currency", usage.Currency, "USD");
+        Check("usage amount usd", UsageCalculator.AmountText("USD", 1.5m), "$1.50");
+        Check("usage amount cny", UsageCalculator.AmountText("CNY", 2m), "¥2.00");
+        Check("usage tokens k", UsageCalculator.TokenEstimateText(0.00015m, "0.15"), "1K");
+        Check("usage tokens m", UsageCalculator.TokenEstimateText(0.15m, "0.15"), "1M");
+        Check("usage tokens b", UsageCalculator.TokenEstimateText(1500m, "0.15"), "10B");
+        Check("usage tokens none", UsageCalculator.TokenEstimateText(0m, "0.15").Length, 0);
+
+        var historyPath = Path.Combine(Path.GetTempPath(), "dsstatus-usage-test.json");
+        UsageHistory.Save(historyPath, usageSamples);
+        var loadedHistory = UsageHistory.Load(historyPath);
+        File.Delete(historyPath);
+        Check("usage history round-trip", loadedHistory.Count, usageSamples.Count);
+        Check("usage history newest", loadedHistory[^1].Total, 102.5m);
+
         const string testTarget = "DeepSeekStatus/selftest-key";
         CredentialManager.Delete(testTarget);
         CredentialManager.Save("sk-selftest-123", testTarget);

@@ -46,6 +46,15 @@ public static class Strings
         ["pricing.offPeak"] = ("Off-peak ×0.5", "空闲 ×0.5"),
         ["pricing.footnote"] = ("From api-docs.deepseek.com · updated {0}.", "数据来自 api-docs.deepseek.com · 更新于 {0}。"),
 
+        ["usage.title"] = ("Usage", "用量"),
+        ["usage.window"] = ("last 30 days", "最近 30 天"),
+        ["usage.today"] = ("Today {0}", "今天 {0}"),
+        ["usage.week"] = ("7 days {0}", "近 7 天 {0}"),
+        ["usage.estimate"] = ("≈ {0} tokens at {1} off-peak input", "≈ {0} tokens（按 {1} 空闲时段输入价估算）"),
+        ["usage.footnote"] = ("Tracked locally from balance changes; builds up while the app runs.", "根据余额变化在本地统计，运行期间逐步积累。"),
+        ["usage.estimateHelp"] = ("The API has no usage endpoint — token counts are estimated from spend at the selected model's off-peak cache-miss input price.", "接口未提供用量查询，tokens 由消费金额按所选模型空闲时段输入价估算。"),
+        ["tray.today"] = ("today {0}", "今日 {0}"),
+
         ["balance.title"] = ("Account balance", "账户余额"),
         ["balance.refresh"] = ("Refresh", "刷新"),
         ["balance.retry"] = ("Retry", "重试"),

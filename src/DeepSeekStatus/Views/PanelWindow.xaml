@@ -268,6 +268,34 @@
                         </StackPanel>
                     </Border>
 
+                    <Grid x:Name="UsageHeaderRow" Margin="0,14,0,0">
+                        <TextBlock x:Name="UsageTitleLabel" FontSize="14.7" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                        <Button x:Name="UsageToggleButton" Style="{StaticResource LinkButton}"
+                                HorizontalAlignment="Right" VerticalAlignment="Center"
+                                FontFamily="Segoe MDL2 Assets" FontSize="12" />
+                    </Grid>
+                    <StackPanel x:Name="UsageBody" Margin="0,9,0,0">
+                        <Border CornerRadius="11" Background="{DynamicResource BalanceBackground}" Padding="13,11">
+                            <StackPanel>
+                                <Grid>
+                                    <TextBlock x:Name="UsageWindowLabel" FontSize="12.7" VerticalAlignment="Bottom"
+                                               Foreground="{DynamicResource TextTertiary}" Margin="0,0,0,3" />
+                                    <TextBlock x:Name="UsageTotalValue" HorizontalAlignment="Right" FontSize="22.7"
+                                               FontWeight="Bold" Foreground="{DynamicResource TextPrimary}"
+                                               Typography.NumeralAlignment="Tabular" />
+                                </Grid>
+                                <v:DailySpendChart x:Name="UsageChart" Height="38" Margin="0,8,0,0" />
+                                <TextBlock x:Name="UsageBreakdownLabel" Margin="0,8,0,0" FontSize="13.3"
+                                           Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" />
+                                <TextBlock x:Name="UsageEstimateLabel" Margin="0,5,0,0" FontSize="12.7"
+                                           Foreground="{DynamicResource TextTertiary}" TextWrapping="Wrap" />
+                                <TextBlock x:Name="UsageFootnote" Margin="0,4,0,0" FontSize="12.7"
+                                           Foreground="{DynamicResource TextTertiary}" TextWrapping="Wrap" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+
                     <Rectangle Height="1" Fill="{DynamicResource Separator}" Margin="0,14,0,0" />
 
                     <TextBlock x:Name="ScheduleTitleLabel" Margin="0,14,0,0" FontSize="14.7"

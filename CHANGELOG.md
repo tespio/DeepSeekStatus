@@ -4,6 +4,21 @@ All notable changes to the Windows port of DeepSeek Status. Version numbers trac
 the upstream macOS project (the balance feature matches upstream 1.2) plus patch
 releases for port-specific fixes.
 
+## [1.6.0] — 2026-09-19
+
+### Added
+
+- **Usage tracking (local).** DeepSeek has no usage endpoint, so the app derives spend from balance
+  changes: every changed balance sample is appended to
+  `%LOCALAPPDATA%\DeepSeekStatus\balance-history.json`, decreases count as spend and top-ups are
+  ignored.
+- Panel **Usage** card: last-30-day total, a per-day bar chart, today / 7-day spend, and a
+  clearly-labelled token estimate based on the selected model's off-peak cache-miss input price.
+  Collapsible, state remembered.
+- Today's spend is appended to the tray tooltip (with the same progressive truncation).
+- Self-tests for the spend calculator (deltas, top-up ignore, buckets) and the history file
+  round-trip.
+
 ## [1.5.0] — 2026-09-19
 
 ### Added
@@ -91,6 +106,7 @@ releases for port-specific fixes.
   - Self-contained local publishing (`build.ps1 -Publish`, no CI required).
   - Built-in self-test (`--selftest`).
 
+[1.6.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.6.0
 [1.5.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.5.0
 [1.4.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.4.0
 [1.3.1]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.3.1

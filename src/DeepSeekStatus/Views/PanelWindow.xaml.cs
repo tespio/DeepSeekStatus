@@ -15,6 +15,7 @@ public partial class PanelWindow : Window
 {
     private readonly PricingStore _store;
     private readonly BalanceStore _balance;
+    private readonly UsageStore _usage;
     private readonly PricingCatalog _catalog = PricingCatalog.Load();
     private readonly Action _quit;
     private bool _syncing;
@@ -23,20 +24,24 @@ public partial class PanelWindow : Window
     private bool _repositioning;
     private int _pricingModelIndex;
     private bool _pricingCollapsed;
+    private bool _usageCollapsed;
     private DateTime _hiddenAt = DateTime.MinValue;
     private int _lastHour = -1;
 
-    public PanelWindow(PricingStore store, BalanceStore balance, Action quit)
+    public PanelWindow(PricingStore store, BalanceStore balance, UsageStore usage, Action quit)
     {
         _store = store;
         _balance = balance;
+        _usage = usage;
         _quit = quit;
         InitializeComponent();
         _pricingModelIndex = Math.Clamp(UserSettings.GetInt("PricingModelIndex"),
                                         0, Math.Max(0, _catalog.Models.Count - 1));
         _pricingCollapsed = UserSettings.GetBool("PricingCollapsed");
+        _usageCollapsed = UserSettings.GetBool("UsageCollapsed");
         ApplyStaticTexts();
         ApplyPricingCollapsed();
+        ApplyUsageCollapsed();
         WireEvents();
 
         _store.PropertyChanged += (_, _) =>
@@ -51,6 +56,13 @@ public partial class PanelWindow : Window
             if (IsVisible)
             {
                 RefreshBalance();
+            }
+        };
+        _usage.PropertyChanged += (_, _) =>
+        {
+            if (IsVisible)
+            {
+                RefreshUsage();
             }
         };
         Theme.Changed += RefreshTheme;
@@ -114,6 +126,7 @@ public partial class PanelWindow : Window
         _store.Refresh();
         Refresh();
         RefreshBalance();
+        RefreshUsage();
         Show();
         UpdateLayout();
         UpdateContentClip();
@@ -134,6 +147,7 @@ public partial class PanelWindow : Window
         WeekGrid.InvalidateVisual();
         Refresh();
         RefreshBalance();
+        RefreshUsage();
     }
 
     public void Refresh()
@@ -402,12 +416,53 @@ public partial class PanelWindow : Window
         {
             PricingProSegment.Visibility = Visibility.Collapsed;
         }
+
+        UsageTitleLabel.Text = Strings.Get("usage.title");
+        UsageWindowLabel.Text = Strings.Get("usage.window");
+        UsageFootnote.Text = Strings.Get("usage.footnote");
     }
 
     private void ApplyPricingCollapsed()
     {
         PricingBody.Visibility = _pricingCollapsed ? Visibility.Collapsed : Visibility.Visible;
         PricingToggleButton.Content = _pricingCollapsed ? "\uE76C" : "\uE70D";
+    }
+
+    private void ApplyUsageCollapsed()
+    {
+        UsageBody.Visibility = _usageCollapsed ? Visibility.Collapsed : Visibility.Visible;
+        UsageToggleButton.Content = _usageCollapsed ? "\uE76C" : "\uE70D";
+    }
+
+    private void RefreshUsage()
+    {
+        var summary = _usage.Summary;
+        var hasData = _usage.HasData && summary.Currency.Length > 0;
+        UsageHeaderRow.Visibility = hasData ? Visibility.Visible : Visibility.Collapsed;
+        UsageBody.Visibility = hasData && !_usageCollapsed ? Visibility.Visible : Visibility.Collapsed;
+        if (!hasData)
+        {
+            return;
+        }
+
+        UsageTotalValue.Text = _usage.FormatAmount(summary.Spend30Days);
+        UsageBreakdownLabel.Text =
+            $"{string.Format(Strings.Get("usage.today"), _usage.FormatAmount(summary.SpendToday))} · " +
+            $"{string.Format(Strings.Get("usage.week"), _usage.FormatAmount(summary.Spend7Days))}";
+        UsageChart.SetData(summary.DailyTotals, summary.MaxDaily,
+                           Theme.Brush(WhaleTheme.BrandBlue), Theme.Brush(Theme.ControlTrack));
+
+        var model = _catalog.Models.Count > 0
+            ? _catalog.Models[Math.Clamp(_pricingModelIndex, 0, _catalog.Models.Count - 1)]
+            : null;
+        var estimate = model is null
+            ? string.Empty
+            : UsageCalculator.TokenEstimateText(summary.Spend30Days, model.InputCacheMiss.OffPeak);
+        UsageEstimateLabel.Text = estimate.Length == 0
+            ? string.Empty
+            : string.Format(Strings.Get("usage.estimate"), estimate, model!.Name);
+        UsageEstimateLabel.ToolTip = Strings.Get("usage.estimateHelp");
+        UsageEstimateLabel.Visibility = estimate.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
     }
 
     private void SetPricingModel(int index)
@@ -420,6 +475,7 @@ public partial class PanelWindow : Window
         _pricingModelIndex = index;
         UserSettings.SetInt("PricingModelIndex", index);
         RenderPricing();
+        RefreshUsage();
     }
 
     private void RenderPricing()
@@ -520,6 +576,13 @@ public partial class PanelWindow : Window
             _pricingCollapsed = !_pricingCollapsed;
             UserSettings.SetBool("PricingCollapsed", _pricingCollapsed);
             ApplyPricingCollapsed();
+        };
+        UsageToggleButton.Click += (_, _) =>
+        {
+            _usageCollapsed = !_usageCollapsed;
+            UserSettings.SetBool("UsageCollapsed", _usageCollapsed);
+            ApplyUsageCollapsed();
+            RefreshUsage();
         };
     }
 

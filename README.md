@@ -35,6 +35,7 @@ with the current period's column highlighted:
 | **Account balance** | Appears in the panel once an API key is saved, and next to the countdown in the tray pill and tooltip. **Refresh** queries it immediately; the time of the last successful refresh sits next to the button |
 | **Enter / Change API Key** | Opens the key field in the panel. The key is stored in **Windows Credential Manager**; **Remove** deletes it |
 | **Model pricing** | Collapsible section with the official per-1M-token rates for `deepseek-flash` and `deepseek-v4-pro` (from api-docs.deepseek.com). The current period's column is highlighted; the selected model and collapsed state are remembered |
+| **Usage** | Collapsible section with locally tracked spend (last 30 days, daily chart, today / 7 days) and a labelled token estimate; today's spend also appears in the tray tooltip. History builds up while the app runs |
 | **Quit** | Quits the app |
 
 The panel contains the current period and price multiplier (`×1.0` / `×0.5`), the current-rate
@@ -65,6 +66,30 @@ account, paste an API key into the panel:
   tooltip, so you can check it without opening the panel.
 - A failed refresh always offers **Retry** and **Change API Key**, with an expired key highlighted
   first.
+
+## Usage
+
+DeepSeek's API has **no usage endpoint** — `/user/balance` is the only account call — so the app
+tracks spend locally from balance changes. Whenever the balance updates (startup, every 5 minutes,
+panel open, wake from sleep), a sample is appended to
+`%LOCALAPPDATA%\DeepSeekStatus\balance-history.json` if it changed. Decreases count as spend;
+top-ups (increases) are ignored.
+
+The panel then shows the last-30-day total with a per-day bar chart, today's and the last 7 days'
+spend, and a **clearly labelled token estimate** derived from the selected model's off-peak
+cache-miss input price. Today's spend is also appended to the tray tooltip.
+
+Caveats, so the numbers are not over-trusted:
+
+- History starts when the feature first runs — nothing is retroactive, and only changes seen while
+  the app is running are recorded.
+- A granted-balance expiry can look like spend; top-ups are ignored, so a top-up made during a
+  long gap without samples can hide usage.
+- Token counts cannot be fetched from the API. The estimate assumes all spend went through the
+  selected model at its off-peak cache-miss input price; real workloads with output tokens or
+  cache hits cost more or less per token, so treat it as a rough volume indicator.
+
+![Usage tracking (sample data)](Preview/panel-usage.png)
 
 ## Pricing rule
 
@@ -173,13 +198,16 @@ whale. The app only touches the network when you opt in by saving an API key:
 The API key lives in **Windows Credential Manager** as a generic credential
 (`DeepSeekStatus/deepseek-api-key`), encrypted by Windows and readable only by your user account —
 never in a plain-text preferences file — and **Remove** in the panel's key editor deletes it. The
+local usage history lives in a JSON file
+(`%LOCALAPPDATA%\DeepSeekStatus\balance-history.json`); delete it to reset the usage numbers. The
 only other system state the app writes is the optional `Run` registry value for launch-at-login and
 the small `HKCU\Software\DeepSeekStatus` preference key.
 
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md) for the version history (1.0.1 → 1.2.0 balance →
-1.3.0 tray balance → 1.3.1 panel anchor fix → 1.4.0 holiday billing).
+1.3.0 tray balance → 1.3.1 panel anchor fix → 1.4.0 holiday billing → 1.5.0 model pricing →
+1.6.0 usage tracking).
 
 ## License
 

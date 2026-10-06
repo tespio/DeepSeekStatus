@@ -15,6 +15,7 @@ public sealed class TrayIcon : IDisposable
     private readonly System.Windows.Forms.ToolStripMenuItem _launchItem;
     private readonly PricingStore _store;
     private readonly BalanceStore _balance;
+    private readonly UsageStore _usage;
     private readonly Action _togglePanel;
     private readonly Action _quit;
 
@@ -22,10 +23,12 @@ public sealed class TrayIcon : IDisposable
     private string _iconKey = string.Empty;
     private string _tooltip = string.Empty;
 
-    public TrayIcon(PricingStore store, BalanceStore balance, Action togglePanel, Action quit)
+    public TrayIcon(PricingStore store, BalanceStore balance, UsageStore usage,
+                    Action togglePanel, Action quit)
     {
         _store = store;
         _balance = balance;
+        _usage = usage;
         _togglePanel = togglePanel;
         _quit = quit;
 
@@ -107,8 +110,11 @@ public sealed class TrayIcon : IDisposable
         var countdown = _store.ShowsCountdown
             ? PricingFormatter.CompactCountdown(_store.Snapshot.SecondsUntilTransition)
             : null;
+        var today = _usage.HasData && _usage.Summary.SpendToday > 0
+            ? string.Format(Strings.Get("tray.today"), _usage.FormatAmount(_usage.Summary.SpendToday))
+            : null;
 
-        string Compose(string title, bool withCountdown)
+        string Compose(string title, bool withCountdown, bool withToday)
         {
             var text = $"DeepSeek Status · {title} · ×{multiplier}";
             if (withCountdown && countdown is not null)
@@ -121,23 +127,34 @@ public sealed class TrayIcon : IDisposable
                 text += $" · {balance}";
             }
 
+            if (withToday && today is not null)
+            {
+                text += $" · {today}";
+            }
+
             return text;
         }
 
-        var full = Compose(period.Title(), true);
+        var full = Compose(period.Title(), true, true);
         if (full.Length <= 62)
         {
             return full;
         }
 
-        var compact = Compose(period.ShortTitle(), true);
+        var compact = Compose(period.ShortTitle(), true, true);
         if (compact.Length <= 62)
         {
             return compact;
         }
 
-        var noCountdown = Compose(period.ShortTitle(), false);
-        return noCountdown.Length <= 62 ? noCountdown : noCountdown[..62];
+        var noCountdown = Compose(period.ShortTitle(), false, true);
+        if (noCountdown.Length <= 62)
+        {
+            return noCountdown;
+        }
+
+        var noToday = Compose(period.ShortTitle(), false, false);
+        return noToday.Length <= 62 ? noToday : noToday[..62];
     }
 
     private void SyncMenu()

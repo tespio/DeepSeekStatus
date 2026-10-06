@@ -11,6 +11,7 @@ public partial class App : Application
 {
     private PricingStore _store = null!;
     private BalanceStore _balance = null!;
+    private UsageStore _usage = null!;
     private TrayIcon _tray = null!;
     private PanelWindow _panel = null!;
     private CountdownOverlay _overlay = null!;
@@ -77,10 +78,11 @@ public partial class App : Application
 
         _store = new PricingStore();
         _balance = new BalanceStore();
+        _usage = new UsageStore(_balance);
         ApplyLaunchOverrides();
-        _panel = new PanelWindow(_store, _balance, Quit);
+        _panel = new PanelWindow(_store, _balance, _usage, Quit);
         _overlay = new CountdownOverlay(_store, _balance, TogglePanel);
-        _tray = new TrayIcon(_store, _balance, TogglePanel, Quit);
+        _tray = new TrayIcon(_store, _balance, _usage, TogglePanel, Quit);
         _store.Tick += OnTick;
         Theme.Changed += OnThemeChanged;
         SystemEvents.DisplaySettingsChanged += (_, _) =>
