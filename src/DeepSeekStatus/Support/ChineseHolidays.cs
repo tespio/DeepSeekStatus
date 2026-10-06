@@ -7,46 +7,76 @@ public static class ChineseHolidays
 {
     private const string ResourceName = "DeepSeekStatus.Assets.china-holidays.json";
 
-    private static readonly HashSet<DateOnly> OffDays = Load();
+    private static readonly Dictionary<DateOnly, string> Holidays = new();
+    private static readonly Dictionary<DateOnly, string> Workdays = new();
 
-    public static bool HasData => OffDays.Count > 0;
-
-    public static bool CoversYear(int year) => OffDays.Any(day => day.Year == year);
-
-    public static bool IsHoliday(DateOnly day) => OffDays.Contains(day);
-
-    private static HashSet<DateOnly> Load()
+    static ChineseHolidays()
     {
-        var days = new HashSet<DateOnly>();
+        Load();
+    }
+
+    public static bool HasData => Holidays.Count > 0;
+
+    public static bool CoversYear(int year) => Holidays.Keys.Any(day => day.Year == year);
+
+    public static bool IsHoliday(DateOnly day) => Holidays.ContainsKey(day);
+
+    public static string? HolidayName(DateOnly day) => Holidays.TryGetValue(day, out var name) ? name : null;
+
+    public static bool IsAlternateWorkday(DateOnly day) => Workdays.ContainsKey(day);
+
+    public static string? AlternateWorkdayName(DateOnly day) =>
+        Workdays.TryGetValue(day, out var name) ? name : null;
+
+    private static void Load()
+    {
         try
         {
             using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(ResourceName);
             if (stream is null)
             {
-                return days;
+                return;
             }
 
             using var document = JsonDocument.Parse(stream);
             if (!document.RootElement.TryGetProperty("years", out var years))
             {
-                return days;
+                return;
             }
 
             foreach (var year in years.EnumerateObject())
             {
-                foreach (var entry in year.Value.EnumerateArray())
+                if (year.Value.TryGetProperty("holidays", out var holidays))
                 {
-                    if (entry.GetString() is { } text && DateOnly.TryParse(text, out var date))
-                    {
-                        days.Add(date);
-                    }
+                    Read(holidays, Holidays);
+                }
+
+                if (year.Value.TryGetProperty("workdays", out var workdays))
+                {
+                    Read(workdays, Workdays);
                 }
             }
         }
         catch
         {
         }
+    }
 
-        return days;
+    private static void Read(JsonElement array, Dictionary<DateOnly, string> target)
+    {
+        foreach (var entry in array.EnumerateArray())
+        {
+            if (!entry.TryGetProperty("date", out var dateElement)
+                || dateElement.GetString() is not { } dateText
+                || !DateOnly.TryParse(dateText, out var date))
+            {
+                continue;
+            }
+
+            var name = entry.TryGetProperty("name", out var nameElement)
+                ? nameElement.GetString() ?? string.Empty
+                : string.Empty;
+            target[date] = name;
+        }
     }
 }

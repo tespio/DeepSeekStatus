@@ -59,7 +59,7 @@ public static class SelfTest
 
         Check("countdown 23:59:59", PricingFormatter.CompactCountdown(86399), "23:59:59");
         Check("countdown 00:00:00", PricingFormatter.CompactCountdown(0), "00:00:00");
-        Check("countdown 99h cap", PricingFormatter.CompactCountdown(360_000), "99:00:00");
+        Check("countdown long block", PricingFormatter.CompactCountdown(360_000), "100:00:00");
 
         Check("offset +3", PricingFormatter.OffsetText(TimeSpan.FromHours(3)), "GMT+3");
         Check("offset -4", PricingFormatter.OffsetText(TimeSpan.FromHours(-4)), "GMT-4");
@@ -112,8 +112,12 @@ public static class SelfTest
         Check("next after holiday starts", DeepSeekPricing.NextTransition(D(2026, 10, 1, 8)), D(2026, 10, 8, 9));
         Check("next after spring festival", DeepSeekPricing.NextTransition(D(2026, 2, 13, 19)), D(2026, 2, 24, 9));
         Check("interval start across holiday", DeepSeekPricing.CurrentIntervalStart(D(2026, 10, 5, 10)), D(2026, 9, 30, 18));
-        Check("snapshot holiday flag", new PricingSnapshot(D(2026, 10, 1, 10)).IsHoliday, true);
-        Check("snapshot non-holiday flag", new PricingSnapshot(D(2026, 10, 8, 10)).IsHoliday, false);
+        Check("snapshot holiday kind", new PricingSnapshot(D(2026, 10, 1, 10)).DayInfo.Kind, PricingDayKind.PublicHoliday);
+        Check("snapshot workday kind", new PricingSnapshot(D(2026, 10, 8, 10)).DayInfo.Kind, PricingDayKind.RegularWeekday);
+        Check("dayinfo alternate workday", PricingDayInfo.For(new DateOnly(2026, 10, 10)).Kind, PricingDayKind.AlternateWorkdayWeekend);
+        Check("dayinfo weekend", PricingDayInfo.For(new DateOnly(2026, 9, 19)).Kind, PricingDayKind.Weekend);
+        Check("dayinfo holiday name", PricingDayInfo.LocalizedName("中秋节"), Strings.Get("holiday.midAutumn"));
+        Check("dayinfo detail text", PricingDayInfo.For(new DateOnly(2026, 9, 25)).LocalizedDetail().Length > 0, true);
 
         var catalog = PricingCatalog.Load();
         Check("pricing model count", catalog.Models.Count, 2);

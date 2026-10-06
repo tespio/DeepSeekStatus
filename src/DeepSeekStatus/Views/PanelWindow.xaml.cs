@@ -25,6 +25,10 @@ public partial class PanelWindow : Window
     private int _pricingModelIndex;
     private bool _pricingCollapsed;
     private bool _usageCollapsed;
+    private bool _scheduleShowsCalendar = true;
+    private bool _syncingSchedule;
+    private DateOnly _selectedDate = DateOnly.FromDateTime(DateTime.Now);
+    private DateOnly _lastCalendarDay = DateOnly.MinValue;
     private DateTime _hiddenAt = DateTime.MinValue;
     private int _lastHour = -1;
 
@@ -93,6 +97,8 @@ public partial class PanelWindow : Window
 
     public bool RecentlyHidden => (DateTime.UtcNow - _hiddenAt).TotalMilliseconds < 350;
 
+    public bool ExportMode { get; set; }
+
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
         base.OnRenderSizeChanged(sizeInfo);
@@ -125,6 +131,14 @@ public partial class PanelWindow : Window
     {
         _store.Refresh();
         Refresh();
+
+        var today = DateOnly.FromDateTime(DateTime.Now);
+        _selectedDate = today;
+        _lastCalendarDay = today;
+        ScheduleCalendar.SetState(today, today);
+        WeekGrid.ReferenceDate = today;
+        ApplyScheduleMode(true);
+
         RefreshBalance();
         RefreshUsage();
         Show();
@@ -145,6 +159,7 @@ public partial class PanelWindow : Window
         OffPeakSwatch.Background = Theme.Brush(Color.FromArgb(0x2E, Theme.TextSecondary.R, Theme.TextSecondary.G, Theme.TextSecondary.B));
         OffPeakLegendSwatch.Background = OffPeakSwatch.Background;
         WeekGrid.InvalidateVisual();
+        ScheduleCalendar.InvalidateVisual();
         Refresh();
         RefreshBalance();
         RefreshUsage();
@@ -161,8 +176,18 @@ public partial class PanelWindow : Window
         Multiplier.Text = "×" + period.PriceMultiplier().ToString("0.0", CultureInfo.InvariantCulture);
         Multiplier.Foreground = Theme.Brush(accent);
         PeriodSummary.Text = period.Summary();
-        HolidayNotice.Text = Strings.Get("popover.holiday.notice");
-        HolidayNotice.Visibility = snapshot.IsHoliday ? Visibility.Visible : Visibility.Collapsed;
+        var dayInfo = snapshot.DayInfo;
+        var holidayLike = dayInfo.Kind is PricingDayKind.PublicHoliday or PricingDayKind.AlternateWorkdayWeekend;
+        HolidayNotice.Text = holidayLike ? dayInfo.LocalizedDetail() : string.Empty;
+        HolidayNotice.Visibility = holidayLike ? Visibility.Visible : Visibility.Collapsed;
+
+        var localToday = DateOnly.FromDateTime(snapshot.Now.LocalDateTime);
+        if (localToday != _lastCalendarDay)
+        {
+            _lastCalendarDay = localToday;
+            ScheduleCalendar.SetState(localToday, _selectedDate);
+            UpdateCalendarHeader();
+        }
 
         RateText.Text = period.PriceText();
         RateText.Foreground = Theme.Brush(accent);
@@ -368,6 +393,11 @@ public partial class PanelWindow : Window
         OffPeakRuleDetail.Text = Strings.Get("popover.schedule.offPeak.detail");
         LegendPeak.Text = Strings.Get("schedule.legend.peak");
         LegendOffPeak.Text = Strings.Get("schedule.legend.offPeak");
+        ScheduleCalendarSegment.Content = Strings.Get("calendar.mode.calendar");
+        ScheduleWeekSegment.Content = Strings.Get("calendar.mode.week");
+        CalendarTodayButton.Content = Strings.Get("calendar.today");
+        CalendarPrevButton.ToolTip = Strings.Get("calendar.previousMonth");
+        CalendarNextButton.ToolTip = Strings.Get("calendar.nextMonth");
         CountdownOptionLabel.Text = Strings.Get("popover.option.countdown");
         LaunchOptionLabel.Text = Strings.Get("popover.option.launchAtLogin");
         PreviewLabel.Text = Strings.Get("popover.preview.label");
@@ -584,6 +614,57 @@ public partial class PanelWindow : Window
             ApplyUsageCollapsed();
             RefreshUsage();
         };
+
+        ScheduleCalendarSegment.Checked += (_, _) => SetScheduleMode(true);
+        ScheduleWeekSegment.Checked += (_, _) => SetScheduleMode(false);
+        CalendarPrevButton.Click += (_, _) =>
+        {
+            ScheduleCalendar.MoveMonth(-1);
+            UpdateCalendarHeader();
+        };
+        CalendarNextButton.Click += (_, _) =>
+        {
+            ScheduleCalendar.MoveMonth(1);
+            UpdateCalendarHeader();
+        };
+        CalendarTodayButton.Click += (_, _) =>
+        {
+            ScheduleCalendar.GoToday();
+            UpdateCalendarHeader();
+        };
+        ScheduleCalendar.SelectedDateChanged += date =>
+        {
+            _selectedDate = date;
+            WeekGrid.ReferenceDate = date;
+        };
+    }
+
+    private void SetScheduleMode(bool calendar)
+    {
+        if (_syncingSchedule)
+        {
+            return;
+        }
+
+        ApplyScheduleMode(calendar);
+    }
+
+    private void ApplyScheduleMode(bool calendar)
+    {
+        _scheduleShowsCalendar = calendar;
+        CalendarHeaderRow.Visibility = calendar ? Visibility.Visible : Visibility.Collapsed;
+        ScheduleCalendar.Visibility = calendar ? Visibility.Visible : Visibility.Collapsed;
+        WeekPanel.Visibility = calendar ? Visibility.Collapsed : Visibility.Visible;
+        _syncingSchedule = true;
+        ScheduleCalendarSegment.IsChecked = calendar;
+        ScheduleWeekSegment.IsChecked = !calendar;
+        _syncingSchedule = false;
+        UpdateCalendarHeader();
+    }
+
+    private void UpdateCalendarHeader()
+    {
+        CalendarMonthLabel.Text = PricingFormatter.MonthYear(ScheduleCalendar.DisplayedMonth);
     }
 
     private void SetCountdown(bool value)
@@ -631,6 +712,11 @@ public partial class PanelWindow : Window
 
     private void PositionNearTray()
     {
+        if (ExportMode)
+        {
+            return;
+        }
+
         var screen = WinForms.Screen.FromPoint(WinForms.Cursor.Position);
         var area = screen.WorkingArea;
         var dpi = VisualTreeHelper.GetDpi(this);

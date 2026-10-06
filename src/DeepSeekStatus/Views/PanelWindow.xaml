@@ -328,16 +328,42 @@
                                    Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" />
                     </Grid>
 
-                    <v:WeekScheduleGrid x:Name="WeekGrid" Height="94" Margin="0,10,0,0" />
+                    <Border Margin="0,10,0,0" CornerRadius="8" Background="{DynamicResource ControlTrack}"
+                            Padding="2" HorizontalAlignment="Left">
+                        <UniformGrid Columns="2" Width="248">
+                            <RadioButton x:Name="ScheduleCalendarSegment" Style="{StaticResource SegmentRadio}"
+                                         GroupName="ScheduleMode" FontSize="14" />
+                            <RadioButton x:Name="ScheduleWeekSegment" Style="{StaticResource SegmentRadio}"
+                                         GroupName="ScheduleMode" FontSize="14" />
+                        </UniformGrid>
+                    </Border>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                        <Border Width="12" Height="12" CornerRadius="3" Background="#FF4D6BFE" VerticalAlignment="Center" />
-                        <TextBlock x:Name="LegendPeak" Margin="7,0,0,0" FontSize="13.3"
-                                   Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
-                        <Border x:Name="OffPeakLegendSwatch" Width="12" Height="12" CornerRadius="3"
-                                Background="#2E6E6E73" Margin="20,0,0,0" VerticalAlignment="Center" />
-                        <TextBlock x:Name="LegendOffPeak" Margin="7,0,0,0" FontSize="13.3"
-                                   Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                    <Grid x:Name="CalendarHeaderRow" Margin="0,9,0,0">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button x:Name="CalendarPrevButton" Style="{StaticResource LinkButton}"
+                                    FontFamily="Segoe MDL2 Assets" FontSize="12" Content="&#xE76B;" />
+                            <TextBlock x:Name="CalendarMonthLabel" Margin="8,0,8,0" FontSize="14.7"
+                                       FontWeight="SemiBold" Foreground="{DynamicResource TextPrimary}"
+                                       VerticalAlignment="Center" />
+                            <Button x:Name="CalendarNextButton" Style="{StaticResource LinkButton}"
+                                    FontFamily="Segoe MDL2 Assets" FontSize="12" Content="&#xE76C;" />
+                        </StackPanel>
+                        <Button x:Name="CalendarTodayButton" Style="{StaticResource LinkButton}"
+                                HorizontalAlignment="Right" FontSize="14" FontWeight="Medium" />
+                    </Grid>
+                    <v:PricingCalendarControl x:Name="ScheduleCalendar" Margin="0,7,0,0" />
+
+                    <StackPanel x:Name="WeekPanel" Visibility="Collapsed">
+                        <v:WeekScheduleGrid x:Name="WeekGrid" Height="94" Margin="0,10,0,0" />
+                        <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                            <Border Width="12" Height="12" CornerRadius="3" Background="#FF4D6BFE" VerticalAlignment="Center" />
+                            <TextBlock x:Name="LegendPeak" Margin="7,0,0,0" FontSize="13.3"
+                                       Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                            <Border x:Name="OffPeakLegendSwatch" Width="12" Height="12" CornerRadius="3"
+                                    Background="#2E6E6E73" Margin="20,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock x:Name="LegendOffPeak" Margin="7,0,0,0" FontSize="13.3"
+                                       Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                        </StackPanel>
                     </StackPanel>
                     <TextBlock x:Name="Footnote" Margin="0,7,0,0" FontSize="12.7"
                                Foreground="{DynamicResource TextTertiary}" TextWrapping="Wrap" />

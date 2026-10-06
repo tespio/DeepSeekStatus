@@ -4,6 +4,25 @@ All notable changes to the Windows port of DeepSeek Status. Version numbers trac
 the upstream macOS project (the balance feature matches upstream 1.2) plus patch
 releases for port-specific fixes.
 
+## [1.7.0] — 2026-10-06
+
+### Added
+
+- **Monthly pricing calendar** (port of upstream 1.3): the schedule area now switches between a
+  Monthly calendar and the Weekly hours grid. The calendar marks all-day off-peak dates (weekends,
+  public holidays and make-up workdays), has month navigation with a Today button, a legend, a
+  selected-day detail line with the holiday name ("National Day holiday · Off-peak all day"), and
+  a coverage warning for years without official data.
+- Holiday **names and make-up workdays** are now embedded alongside the dates (State Council data
+  via holiday-cn); `Tools/update-holidays.ps1` regenerates them.
+- The week grid follows the date selected in the calendar (shows that week), highlights the
+  selected row, and only rings the current hour when viewing the current week.
+
+### Fixed
+
+- The compact countdown no longer caps at 99 hours, so long holiday blocks (e.g. an 8-day Chinese
+  New Year) show the real remaining time instead of being stuck at `99:00:00`.
+
 ## [1.6.0] — 2026-09-19
 
 ### Added
@@ -106,6 +125,7 @@ releases for port-specific fixes.
   - Self-contained local publishing (`build.ps1 -Publish`, no CI required).
   - Built-in self-test (`--selftest`).
 
+[1.7.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.7.0
 [1.6.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.6.0
 [1.5.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.5.0
 [1.4.0]: https://github.com/tespio/DeepSeekStatus/releases/tag/v1.4.0

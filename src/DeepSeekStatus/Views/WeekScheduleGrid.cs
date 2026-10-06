@@ -15,6 +15,23 @@ public sealed class WeekScheduleGrid : FrameworkElement
     private const int Columns = 24;
     private const int Rows = 7;
 
+    private DateOnly _referenceDate = DateOnly.FromDateTime(DateTime.Now);
+
+    public DateOnly ReferenceDate
+    {
+        get => _referenceDate;
+        set
+        {
+            if (_referenceDate == value)
+            {
+                return;
+            }
+
+            _referenceDate = value;
+            InvalidateVisual();
+        }
+    }
+
     public static double ContentHeight => Rows * CellHeight + (Rows - 1) * Gap + TickHeight;
 
     protected override void OnRender(DrawingContext context)
@@ -31,9 +48,12 @@ public sealed class WeekScheduleGrid : FrameworkElement
         var dpi = VisualTreeHelper.GetDpi(this).PixelsPerDip;
 
         var now = DateTimeOffset.Now;
-        var currentRow = ((int)now.DayOfWeek + 6) % 7;
+        var today = DateOnly.FromDateTime(now.DateTime);
+        var referenceRow = ((int)_referenceDate.DayOfWeek + 6) % 7;
+        var weekStart = _referenceDate.AddDays(-referenceRow);
+        var isCurrentWeek = today >= weekStart && today < weekStart.AddDays(7);
+        var currentRow = ((int)today.DayOfWeek + 6) % 7;
         var currentHour = now.Hour;
-        var monday = DateOnly.FromDateTime(now.DateTime).AddDays(-currentRow);
 
         var primary = Theme.Brush(Theme.TextPrimary);
         var secondary = Theme.Brush(Theme.TextSecondary);
@@ -48,13 +68,16 @@ public sealed class WeekScheduleGrid : FrameworkElement
             cellWidth,
             CellHeight);
 
-        var bandColor = Color.FromArgb(0x12, Theme.TextPrimary.R, Theme.TextPrimary.G, Theme.TextPrimary.B);
-        var hourBand = new Rect(
-            LabelWidth + currentHour * (cellWidth + Gap) - Gap / 2,
-            0,
-            cellWidth + Gap,
-            Rows * CellHeight + (Rows - 1) * Gap);
-        context.DrawRoundedRectangle(Theme.Brush(bandColor), null, hourBand, 2.7, 2.7);
+        if (isCurrentWeek)
+        {
+            var bandColor = Color.FromArgb(0x12, Theme.TextPrimary.R, Theme.TextPrimary.G, Theme.TextPrimary.B);
+            var hourBand = new Rect(
+                LabelWidth + currentHour * (cellWidth + Gap) - Gap / 2,
+                0,
+                cellWidth + Gap,
+                Rows * CellHeight + (Rows - 1) * Gap);
+            context.DrawRoundedRectangle(Theme.Brush(bandColor), null, hourBand, 2.7, 2.7);
+        }
 
         var peakBrush = Theme.Brush(Color.FromArgb(0xEB, WhaleTheme.BrandBlue.R, WhaleTheme.BrandBlue.G, WhaleTheme.BrandBlue.B));
         var offBrush = Theme.Brush(Color.FromArgb(0x2E, Theme.TextSecondary.R, Theme.TextSecondary.G, Theme.TextSecondary.B));
@@ -63,11 +86,11 @@ public sealed class WeekScheduleGrid : FrameworkElement
         var labels = PricingFormatter.WeekdaySymbolsMondayFirst();
         for (var row = 0; row < Rows; row++)
         {
-            var isCurrent = row == currentRow;
-            var day = monday.AddDays(row);
+            var isReference = row == referenceRow;
+            var day = weekStart.AddDays(row);
             var label = new FormattedText(labels[row], Strings.Culture, FlowDirection.LeftToRight,
-                                          isCurrent ? boldTypeface : normalTypeface, 10.7,
-                                          isCurrent ? primary : secondary, dpi);
+                                          isReference ? boldTypeface : normalTypeface, 10.7,
+                                          isReference ? primary : secondary, dpi);
             context.DrawText(label, new Point(LabelWidth - 9 - label.Width, CellRect(row, 0).Y + CellHeight / 2 - label.Height / 2));
 
             for (var column = 0; column < Columns; column++)
@@ -75,7 +98,7 @@ public sealed class WeekScheduleGrid : FrameworkElement
                 var isPeak = PricingFormatter.IsPeakAtLocal(day, column, TimeZoneInfo.Local);
                 var cell = CellRect(row, column);
                 context.DrawRoundedRectangle(isPeak ? peakBrush : offBrush, null, cell, radius, radius);
-                if (row == currentRow && column == currentHour)
+                if (isCurrentWeek && row == currentRow && column == currentHour)
                 {
                     context.DrawRoundedRectangle(null, ringPen, cell, radius, radius);
                 }

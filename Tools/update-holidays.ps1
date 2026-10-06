@@ -20,10 +20,13 @@ foreach ($year in $Years) {
         continue
     }
 
-    $offDays = @($data.days | Where-Object { $_.isOffDay } | ForEach-Object { $_.date } | Sort-Object)
-    if ($offDays.Count -gt 0) {
-        $yearMap["$year"] = $offDays
-        Write-Host "$year: $($offDays.Count) off days"
+    $holidays = @($data.days | Where-Object { $_.isOffDay } | Sort-Object date |
+        ForEach-Object { [ordered]@{ date = $_.date; name = $_.name } })
+    $workdays = @($data.days | Where-Object { -not $_.isOffDay } | Sort-Object date |
+        ForEach-Object { [ordered]@{ date = $_.date; name = $_.name } })
+    if ($holidays.Count -gt 0) {
+        $yearMap["$year"] = [ordered]@{ holidays = $holidays; workdays = $workdays }
+        Write-Host "${year}: $($holidays.Count) holidays, $($workdays.Count) make-up workdays"
     }
     else {
         Write-Warning "No holiday data for $year (skipped)"
@@ -32,7 +35,7 @@ foreach ($year in $Years) {
 
 $payload = [ordered]@{
     source  = 'https://github.com/NateScarlet/holiday-cn'
-    note    = 'Chinese public holidays (State Council annual notices). Only full days off are listed; adjusted weekend workdays are already off-peak. Regenerate with Tools/update-holidays.ps1.'
+    note    = 'Chinese public holidays and make-up workdays (State Council annual notices). Regenerate with Tools/update-holidays.ps1.'
     updated = (Get-Date -Format 'yyyy-MM-dd')
     years   = $yearMap
 }

@@ -116,14 +116,14 @@ public sealed class PricingSnapshot : IEquatable<PricingSnapshot>
     {
         Now = now;
         var beijingDay = DateOnly.FromDateTime(now.ToOffset(DeepSeekPricing.BeijingOffset).DateTime);
-        IsHoliday = Support.ChineseHolidays.IsHoliday(beijingDay);
+        DayInfo = PricingDayInfo.For(beijingDay);
         Period = DeepSeekPricing.PeriodAt(now);
         IntervalStart = DeepSeekPricing.CurrentIntervalStart(now);
         NextTransition = DeepSeekPricing.NextTransition(now);
         NextPeriod = DeepSeekPricing.PeriodAt(NextTransition.AddSeconds(1));
     }
 
-    public bool IsHoliday { get; }
+    public PricingDayInfo DayInfo { get; }
 
     public bool Equals(PricingSnapshot? other) =>
         other is not null
@@ -132,9 +132,9 @@ public sealed class PricingSnapshot : IEquatable<PricingSnapshot>
         && IntervalStart == other.IntervalStart
         && NextTransition == other.NextTransition
         && NextPeriod == other.NextPeriod
-        && IsHoliday == other.IsHoliday;
+        && DayInfo == other.DayInfo;
 
     public override bool Equals(object? obj) => Equals(obj as PricingSnapshot);
 
-    public override int GetHashCode() => HashCode.Combine(Now, Period, IntervalStart, NextTransition, NextPeriod, IsHoliday);
+    public override int GetHashCode() => HashCode.Combine(Now, Period, IntervalStart, NextTransition, NextPeriod, DayInfo);
 }

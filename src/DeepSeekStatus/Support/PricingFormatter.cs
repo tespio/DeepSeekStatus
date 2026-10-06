@@ -19,12 +19,28 @@ public static class PricingFormatter
             : local.ToString("dddd, MMMM d", Strings.Culture);
     }
 
+    public static string Day(DateOnly date) =>
+        Strings.IsChinese
+            ? date.ToString("M月d日dddd", Strings.Culture)
+            : date.ToString("dddd, MMMM d", Strings.Culture);
+
+    public static string MonthYear(DateOnly month) =>
+        Strings.IsChinese
+            ? month.ToString("yyyy年M月", Strings.Culture)
+            : month.ToString("MMMM yyyy", Strings.Culture);
+
     public static string WeekdayName(DateTimeOffset date) =>
         date.ToLocalTime().ToString("ddd", Strings.Culture);
 
     public static string[] WeekdaySymbolsMondayFirst()
     {
         var symbols = Strings.Culture.DateTimeFormat.AbbreviatedDayNames;
+        return Enumerable.Range(1, 7).Select(index => symbols[index % 7]).ToArray();
+    }
+
+    public static string[] ShortestWeekdaySymbolsMondayFirst()
+    {
+        var symbols = Strings.Culture.DateTimeFormat.ShortestDayNames;
         return Enumerable.Range(1, 7).Select(index => symbols[index % 7]).ToArray();
     }
 
@@ -116,7 +132,7 @@ public static class PricingFormatter
     public static string CompactCountdown(double seconds)
     {
         var total = (long)Math.Floor(Math.Max(0, seconds));
-        var hours = Math.Min(total / 3_600, 99);
+        var hours = total / 3_600;
         var minutes = total % 3_600 / 60;
         var secs = total % 60;
         return string.Format(CultureInfo.InvariantCulture, "{0:00}:{1:00}:{2:00}", hours, minutes, secs);

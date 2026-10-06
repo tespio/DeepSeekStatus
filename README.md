@@ -16,12 +16,11 @@ The whale lives in the notification area:
 
 ## Screenshot
 
-Off-peak hours with an API key saved — the whale sleeps, every time is shown in the machine's
-local time (here the Beijing schedule has been converted to GMT+3, so the peak blocks land at
-04:00–07:00 and 09:00–13:00), and the panel shows the account balance plus the model pricing table
-with the current period's column highlighted:
+Off-peak with an API key saved — the panel shows the account balance, locally tracked usage, and the
+monthly pricing calendar, where weekends and Chinese public holidays are green (off-peak all day)
+and the selected day is explained ("National Day holiday · Off-peak all day"):
 
-![DeepSeek Status panel with account balance and model pricing](Preview/panel-balance.png)
+![DeepSeek Status panel with account balance, usage and the monthly pricing calendar](Preview/panel-calendar.png)
 
 ## Features
 
@@ -32,6 +31,7 @@ with the current period's column highlighted:
 | **Preview** picker in the panel | Force the app to *display* peak or off-peak; it never changes the real pricing |
 | **Show countdown near the tray** | Adds a small `HH:MM:SS` pill next to the notification area (off by default). When a balance is loaded it is shown after the countdown (`HH:MM:SS · ¥42.00`). It is always-on-top and can be dragged; click it to open the panel |
 | **Launch at login** | Registers the app under `HKCU\...\CurrentVersion\Run` (off by default) |
+| **Schedule rules** | Two views: a **Monthly calendar** marking weekends, Chinese public holidays and make-up workdays (with a selected-day explanation), and the **Weekly hours** 7×24 heat map — both computed with the holiday-aware pricing rules |
 | **Account balance** | Appears in the panel once an API key is saved, and next to the countdown in the tray pill and tooltip. **Refresh** queries it immediately; the time of the last successful refresh sits next to the button |
 | **Enter / Change API Key** | Opens the key field in the panel. The key is stored in **Windows Credential Manager**; **Remove** deletes it |
 | **Model pricing** | Collapsible section with the official per-1M-token rates for `deepseek-flash` and `deepseek-v4-pro` (from api-docs.deepseek.com). The current period's column is highlighted; the selected model and collapsed state are remembered |
@@ -179,6 +179,10 @@ Development helpers (same idea as the macOS `DEEPSEEK_STATUS_*` variables):
   original always displayed Beijing time). The billing logic itself is unchanged.
 - **Chinese public holidays are treated as off-peak**, following DeepSeek's updated pricing
   notice — the macOS original (as of 1.2) does not handle holidays yet.
+- The macOS original downloads Apple's public China holiday calendar once a day; this port keeps
+  the holiday dates, names and make-up workdays **embedded** (State Council notices) so pricing
+  works fully offline. Refresh them with `.\Tools\update-holidays.ps1` when a new year is
+  published.
 - Everything else — the pricing math, half-open Beijing-time ranges, countdown, progress bars,
   weekly heat map, preview banner, whale vector, palette and the opt-in balance feature — is a
   direct port of the Swift sources in `DeepSeekStatus/` (see the `DeepSeekStatus-macos`
@@ -207,7 +211,7 @@ the small `HKCU\Software\DeepSeekStatus` preference key.
 
 See [CHANGELOG.md](CHANGELOG.md) for the version history (1.0.1 → 1.2.0 balance →
 1.3.0 tray balance → 1.3.1 panel anchor fix → 1.4.0 holiday billing → 1.5.0 model pricing →
-1.6.0 usage tracking).
+1.6.0 usage tracking → 1.7.0 pricing calendar).
 
 ## License
 

@@ -100,6 +100,7 @@ public partial class App : Application
 
         if (_exportPanelDirectory is not null)
         {
+            _panel.ExportMode = true;
             _panel.ShowPanel();
             var started = DateTime.UtcNow;
             var timer = new System.Windows.Threading.DispatcherTimer
@@ -120,6 +121,8 @@ public partial class App : Application
                 }
 
                 timer.Stop();
+                _panel.Scroller.MaxHeight = double.PositiveInfinity;
+                _panel.UpdateLayout();
                 var name = _exportPanelName ?? $"panel-{_store.Period.Key()}";
                 Environment.ExitCode = PanelExporter.Export(_panel.RootBorder, _exportPanelDirectory!, name);
                 Shutdown();
